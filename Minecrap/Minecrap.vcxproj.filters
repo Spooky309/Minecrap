@@ -105,6 +105,9 @@
     <ClInclude Include="TextureDictionary.h">
       <Filter>Header Files\Texture</Filter>
     </ClInclude>
+    <ClInclude Include="glad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="World.cpp">
@@ -118,9 +121,6 @@
     </ClCompile>
     <ClCompile Include="WorldRenderMesh.cpp">
       <Filter>Source Files\Mesher</Filter>
-    </ClCompile>
-    <ClCompile Include="F:\YEAR_2\DIRS\src\glad.c">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Texture.cpp">
       <Filter>Source Files\Texture</Filter>
@@ -154,6 +154,9 @@
     </ClCompile>
     <ClCompile Include="TextureDictionary.cpp">
       <Filter>Source Files\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="glad.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

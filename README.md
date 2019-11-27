@@ -26,7 +26,6 @@ I won't have a lot of time to work on this in the immediate future because I hav
 glfw3  
 libpng (by extension zlib)  
 openal (isn't actually used right now, but will be)  
-you need a glad.h that matches my glad.c, i should probably include that  
 glm
 
 # Where can I build it?

@@ -141,6 +141,7 @@
     <ClInclude Include="AABB.h" />
     <ClInclude Include="BlockData.h" />
     <ClInclude Include="Filesystem.h" />
+    <ClInclude Include="glad.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Mesher.h" />
     <ClInclude Include="NaiveMesher.h" />
@@ -157,8 +158,8 @@
   <ItemGroup>
     <ClCompile Include="AABB.cpp" />
     <ClCompile Include="BlockData.cpp" />
-    <ClCompile Include="F:\YEAR_2\DIRS\src\glad.c" />
     <ClCompile Include="Filesystem.cpp" />
+    <ClCompile Include="glad.c" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NaiveMesher.cpp" />
