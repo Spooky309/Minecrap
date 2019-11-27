@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include "Filesystem.h"
+#define BDATAVERSION 1
 BlockData::BlockData(const std::string& blockDataCFG)
 {
 	FILE* blockFile;
@@ -9,6 +10,13 @@ BlockData::BlockData(const std::string& blockDataCFG)
 	if (!blockFile)
 	{
 		std::cout << "Block data is missing. You should probably abort now\n";
+		return;
+	}
+	uint16_t version;
+	fread_s(&version, sizeof(uint16_t), sizeof(uint16_t), 1, blockFile);
+	if (version != BDATAVERSION)
+	{
+		std::cout << "Block data is the wrong version!!! Please upgrade it.\n";
 		return;
 	}
 	fread_s(&numBlocks, sizeof(uint32_t), sizeof(uint32_t), 1, blockFile);
@@ -20,12 +28,12 @@ Block* BlockData::GetBlockByID(const size_t& id)
 	if (id > numBlocks)
 	{
 		std::cout << "Tried to get a block that was out of range. Returning 1\n";
-		return &blockList[1];
+		return &blockList[0];
 	}
 	if (id == 0)
 	{
 		std::cout << "Tried to get block 0 which is invalid. Returning 1\n";
-		return &blockList[1];
+		return &blockList[0];
 	}
 	return &blockList[id - 1];
 }

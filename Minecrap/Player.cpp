@@ -101,6 +101,7 @@ void Player::Update(const float& dTime)
 
 	if (aabbHit && aabbHit->alive)
 	{
+		aabbHit->Draw();
 		if (Input::Instance().GetMouseButtonDown(0))
 		{
 			aabbHit->alive = false;

@@ -35,5 +35,7 @@ private:
 	size_t num_aabbs = 0;
 	bool remeshRequired;
 	Mesher* curMesher;
+	BlockData* m_blockData;
+	TextureDictionary* m_texDict;
 	World(const World&) = delete; // no copying allowed >:(
 };

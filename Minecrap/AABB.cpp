@@ -1,7 +1,15 @@
+
 #include "AABB.h"
 #include <cmath>
 #include <iostream>
 #include <algorithm>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include "PublicData.h"
+#include <GLFW/glfw3.h>
+GLuint AABB::boxVBO;
+GLuint AABB::boxVAO;
+ShaderProgram* AABB::rendProg;
 AABB::AABB(
 	const float& io_x,
 	const float& io_y,
@@ -16,6 +24,40 @@ AABB::AABB(
 {
 	min = origin - (size/2.0f);
 	max = origin + (size/2.0f);
+	if (!boxVAO)
+	{
+		glGenVertexArrays(1, &boxVAO);
+		glBindVertexArray(boxVAO);
+		glGenBuffers(1, &boxVBO);
+		glBindBuffer(GL_ARRAY_BUFFER, boxVBO);
+		glBufferData(GL_ARRAY_BUFFER, 108 * sizeof(GLfloat), BoxVerts, GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
+		glEnableVertexAttribArray(0);
+	}
+	if (!rendProg)
+	{
+		rendProg = ShaderManager::Instance().LoadShaderProgram("aabb");
+		rendProg->Use();
+		glUniformMatrix4fv(glGetUniformLocation(rendProg->GetProgID(), "proj"), 1, GL_FALSE, glm::value_ptr(PublicData::Instance().projMat));
+	}
+}
+
+void AABB::Draw()
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_CULL_FACE);
+	glBindVertexArray(boxVAO);
+	rendProg->Use();
+	glUniformMatrix4fv(glGetUniformLocation(rendProg->GetProgID(), "view"), 1, GL_FALSE, glm::value_ptr(PublicData::Instance().viewMat));
+	glm::mat4 modelMat(1.0f);
+	modelMat = glm::translate(modelMat, this->origin);
+	modelMat = glm::scale(modelMat, glm::vec3(1.01f, 1.01f, 1.01f));
+	glUniform1f(glGetUniformLocation(rendProg->GetProgID(), "alpha"), sin(glfwGetTime()*4.0f));
+	glUniformMatrix4fv(glGetUniformLocation(rendProg->GetProgID(), "model"), 1, GL_FALSE, glm::value_ptr(modelMat));
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glDisable(GL_BLEND);
+	glEnable(GL_CULL_FACE);
 }
 
 void AABB::Move(const float& d_x, const float& d_y, const float& d_z)

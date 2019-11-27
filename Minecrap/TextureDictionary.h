@@ -14,7 +14,10 @@ class TextureDictionary
 {
 public:
 	TextureDictionary(const std::string& texName = "texture.png");
-
+	inline const texture& GetTexture()
+	{
+		return *m_tex;
+	}
 	inline const FaceUVCoord& GetTextureUV(const size_t i)
 	{
 		if (i > 0 && i < numUVs)

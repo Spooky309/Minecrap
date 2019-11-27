@@ -14,6 +14,7 @@
 #include "ShaderManager.h"
 #include "BlockData.h"
 #include "TextureDictionary.h"
+#include "PublicData.h"
 int main() 
 {
 	glfwInit();
@@ -29,20 +30,16 @@ int main()
 	glCullFace(GL_BACK);
 	glEnable(GL_DEPTH_TEST);
 	Input::Instance().Init(wind);
-	ShaderManager shadMan;
-	ShaderProgram* shadProg = shadMan.LoadShaderProgram("block");
+	ShaderProgram* shadProg = ShaderManager::Instance().LoadShaderProgram("block");
 	shadProg->Use();
 	glm::mat4 proj = glm::perspective(glm::radians(50.0f), 1024.0f / 768.0f, 0.1f, 1000.0f);
+	PublicData::Instance().projMat = proj;
 	GLuint vMatPos = glGetUniformLocation(shadProg->GetProgID(), "view");
 	glUniformMatrix4fv(glGetUniformLocation(shadProg->GetProgID(), "proj"), 1, GL_FALSE, glm::value_ptr(proj));
 	BlockData* blockData = new BlockData();
 	TextureDictionary* tDict = new TextureDictionary();
 	World* curWorld = new World(40, 40, 40, tDict, blockData);
-	
-	// old texture loader uses shared ptrs LMAO im too lazy to rework it now
-	// LMAO just clear your own resources you LAZY &*%!
 	Player* player = new Player(curWorld, blockData, glm::vec3(10, 30, 10));
-	
 	double oTime = glfwGetTime();
 	float dTime = 0.0f;
 	while (!glfwWindowShouldClose(wind)) {
@@ -50,11 +47,14 @@ int main()
 		{
 			glfwSetWindowShouldClose(wind, true);
 		}
-		curWorld->UpdateWorld();
-		player->Update(dTime);
-		glUniformMatrix4fv(vMatPos, 1, GL_FALSE, glm::value_ptr(player->GetViewMatrix()));
+		shadProg->Use();
+		PublicData::Instance().viewMat = player->GetViewMatrix();
+		glUniformMatrix4fv(vMatPos, 1, GL_FALSE, glm::value_ptr(PublicData::Instance().viewMat));
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		curWorld->RenderWorld();
+		curWorld->UpdateWorld();
+		//glClear(GL_DEPTH_BUFFER_BIT);
+		player->Update(dTime);
 		glfwSwapBuffers(wind);
 		Input::Instance().Update(wind);
 		glfwPollEvents();

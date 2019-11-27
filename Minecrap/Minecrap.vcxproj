@@ -146,6 +146,7 @@
     <ClInclude Include="Mesher.h" />
     <ClInclude Include="NaiveMesher.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="PublicData.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderManager.h" />

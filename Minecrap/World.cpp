@@ -7,6 +7,8 @@ World::World(const unsigned long long& width, const unsigned long long& height, 
 	m_wB(breadth),
 	m_wSize(width*height*breadth),
 	remeshRequired(true),
+	m_blockData(bd),
+	m_texDict(dict),
 	curMesher(new NaiveMesher(dict, bd))
 {
 	m_wData = new unsigned short[m_wSize];
@@ -103,6 +105,7 @@ void World::RenderWorld()
 		remeshRequired = false;
 	}
 	// Render world...
+	glBindTexture(GL_TEXTURE_2D, m_texDict->GetTexture().glTex);
 	glBindVertexArray(m_wMeshes[0]->GetVAOs()[0].first);
 	glDrawArrays(GL_TRIANGLES, 0, m_wMeshes[0]->tCount);
 }
