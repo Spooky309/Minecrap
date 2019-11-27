@@ -17,6 +17,7 @@ Normally they call this a roadmap, but a hitlist sounds way cooler, right now my
 * Text and UI rendering
 * Making blocks glow or outline when you hover over them
 * Block types that are not cubes, e.g. flowers
+* Some kind of optimization for the chunk mesher, right now it causes a tiny hitch as it regenerates the entire mesh at once for every change made (per frame, if multiple changes are made in one frame, only one update is performed), this could be optimized but I'm not too worried about it.
 
 I won't have a lot of time to work on this in the immediate future because I have a billion uni assignments to catch up on.
 
