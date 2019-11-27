@@ -1,6 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 #include "World.h"
+#include "BlockData.h"
 typedef enum PlayerMode
 {
 	NONE = 0,
@@ -10,7 +11,7 @@ typedef enum PlayerMode
 class Player
 {
 public:
-	Player(World* world, const glm::vec3& initPos = glm::vec3(0.0f, 0.0f, 0.0f),
+	Player(World* world, BlockData* bd, const glm::vec3& initPos = glm::vec3(0.0f, 0.0f, 0.0f),
 		const PlayerMode& pMode = PlayerMode::NONE);
 	void Update(const float& dTime);
 	glm::mat4 GetViewMatrix();
@@ -31,4 +32,6 @@ private:
 	glm::mat4 viewMat;
 	PlayerMode pMode;
 	World* m_curWorld; // the world i belong to
+	unsigned short selectedBlock = 1;
+	BlockData* blockData;
 };

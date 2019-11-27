@@ -1,11 +1,13 @@
 #include "Player.h"
 #include "Input.h"
+#include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
-Player::Player(World* world, const glm::vec3& initPos, const PlayerMode& pMode)
+Player::Player(World* world, BlockData* bd, const glm::vec3& initPos, const PlayerMode& pMode)
 	:pPos(initPos),
 	pEuler(glm::vec3(0.0f, 0.0f, 0.0f)),
 	pUp(glm::vec3(0.0f, 1.0f, 0.0f)),
-	m_curWorld(world)
+	m_curWorld(world),
+	blockData(bd)
 {
 	pFwd.x = cos(glm::radians(pEuler.x)) * cos(glm::radians(pEuler.y));
 	pFwd.y = sin(glm::radians(pEuler.y));
@@ -109,8 +111,13 @@ void Player::Update(const float& dTime)
 			m_curWorld->SetBlockAt(aabbHit->ws_x + (int)(roundf(normHit.x)),
 				aabbHit->ws_y + (int)(roundf(normHit.y)),
 				aabbHit->ws_z + (int)(roundf(normHit.z)),
-				2);
+				selectedBlock);
 			m_curWorld->ForceAABBRegen(xP, yP, zP);
+		}
+		if (Input::Instance().GetMouseButtonDown(2))
+		{
+			selectedBlock = m_curWorld->GetBlockAt(aabbHit->ws_x, aabbHit->ws_y, aabbHit->ws_z);
+			std::cout << "Selected " << blockData->GetBlockByID(selectedBlock)->internalName << "\n";
 		}
 	}
 }

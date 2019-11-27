@@ -41,7 +41,7 @@ int main()
 	
 	// old texture loader uses shared ptrs LMAO im too lazy to rework it now
 	// LMAO just clear your own resources you LAZY &*%!
-	Player* player = new Player(curWorld, glm::vec3(10, 30, 10));
+	Player* player = new Player(curWorld, blockData, glm::vec3(10, 30, 10));
 	
 	double oTime = glfwGetTime();
 	float dTime = 0.0f;

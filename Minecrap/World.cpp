@@ -20,9 +20,16 @@ World::World(const unsigned long long& width, const unsigned long long& height, 
 		for (size_t y = 0; y < m_wH; y++)
 		{
 			if (y < m_wH / 2) {
+				if (y < m_wH / 2 - 2) {
+					for (size_t z = 0; z < m_wB; z++)
+					{
+						SetBlockAt(x, y, z, 1);
+					}
+					continue;
+				}
 				for (size_t z = 0; z < m_wB; z++)
 				{
-					SetBlockAt(x, y, z, 1);
+					SetBlockAt(x, y, z, 2);
 				}
 			}
 		}
