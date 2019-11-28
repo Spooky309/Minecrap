@@ -35,7 +35,7 @@ Right now, only Windows, due to Filesystem.h, it would be easy to add Linux and 
 # Thanks to...
 
 Mojang for the textures I stole (they're placeholders!!!)  
-This guy on the internet who wrote about a bunch of detailed 2D AABB tests which I turned into 3D  
+[This guy](http://noonat.github.io/intersect/) who wrote the 2D AABB tests I based my collision off  
 Everyone who gave me the validation I needed to be motivated to continue with this, as long as I do  
 My parents for being cool
 
