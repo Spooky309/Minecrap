@@ -33,6 +33,7 @@ private:
 	PlayerMode pMode;
 	World* m_curWorld; // the world i belong to
 	AABB* myAABB;
+	bool gravity = true;
 	unsigned short selectedBlock = 1;
 	BlockData* blockData;
 };

@@ -8,7 +8,7 @@ Player::Player(World* world, BlockData* bd, const glm::vec3& initPos, const Play
 	pEuler(glm::vec3(0.0f, 0.0f, 0.0f)),
 	pUp(glm::vec3(0.0f, 1.0f, 0.0f)),
 	m_curWorld(world),
-	myAABB(new AABB(pPos.x, pPos.y - 0.75f, pPos.z, 0.5f, 1.5f, 0.5f)),
+	myAABB(new AABB(pPos.x, pPos.y - 0.75f, pPos.z, 0.5f, 1.75f, 0.5f)),
 	blockData(bd)
 {
 	pFwd.x = cos(glm::radians(pEuler.x)) * cos(glm::radians(pEuler.y));
@@ -53,7 +53,19 @@ void Player::Update(const float& dTime)
 	}
 	//std::cout << pFwd.x << ", " << pFwd.y << ", " << pFwd.z << "\n";
 	glm::vec3 velocity(0.0f, -9.8f * (dTime), 0.0f);
-	//velocity.y = 0.0f;
+	if (Input::Instance().GetKeyDown(GLFW_KEY_G))
+	{
+		gravity = !gravity;
+		std::cout << "Player gravity ";
+		if (gravity)
+			std::cout << "enabled.\n";
+		else
+			std::cout << "disabled\n";
+	}
+	if (!gravity)
+	{
+		velocity.y = 0.0f;
+	}
 	if (Input::Instance().GetKey(GLFW_KEY_W))
 	{
 		velocity += (pFwd * (float)dTime)* 5.0f;
@@ -79,7 +91,7 @@ void Player::Update(const float& dTime)
 		velocity -= (pUp * (float)dTime)*5.0f;
 	}
 	//glm::vec3 prospectivePos = pPos + velocity;
-	myAABB->MoveAbs(pPos.x, pPos.y - 0.75f, pPos.z);
+	myAABB->MoveAbs(pPos.x, pPos.y - 0.5f, pPos.z);
 	Sweep* sw = myAABB->SweepIntoAABBs(m_curWorld->GetAABB(0), m_curWorld->GetNumAABBs(), velocity);
 	//myAABB->Draw();
 	while (sw->hit)
@@ -127,11 +139,16 @@ void Player::Update(const float& dTime)
 		}
 		if (Input::Instance().GetMouseButtonDown(1))
 		{
-			m_curWorld->SetBlockAt(aabbHit->ws_x + (int)(roundf(normHit.x)),
-				aabbHit->ws_y + (int)(roundf(normHit.y)),
-				aabbHit->ws_z + (int)(roundf(normHit.z)),
-				selectedBlock);
-			m_curWorld->ForceAABBRegen(xP, yP, zP);
+			AABB testAABB = AABB(aabbHit->origin.x + normHit.x, aabbHit->origin.y + normHit.y, aabbHit->origin.z + normHit.z);
+			Hit* hit = myAABB->VsAABB(testAABB);
+			if (!hit)
+			{
+				m_curWorld->SetBlockAt(aabbHit->ws_x + (int)(roundf(normHit.x)),
+					aabbHit->ws_y + (int)(roundf(normHit.y)),
+					aabbHit->ws_z + (int)(roundf(normHit.z)),
+					selectedBlock);
+				m_curWorld->ForceAABBRegen(xP, yP, zP);
+			}
 		}
 		if (Input::Instance().GetMouseButtonDown(2))
 		{
