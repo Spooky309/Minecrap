@@ -10,6 +10,17 @@ You can place blocks, and remove them. You can edit the `blocks` file in a hex e
 
 Everything else.
 
+# What are the controls?
+
+WASD - Move  
+QE - Move directly up or down in fly mode  
+Mouse - Look  
+LMB - Remove block  
+RMB - Place block  
+MMB - Select block that you're looking at (for placement)  
+G - Disable gravity  
+ESC - [Finish It](https://f4.bcbits.com/img/a2856518997_16.jpg)
+
 # Feature Hitlist
 
 Normally they call this a roadmap, but a hitlist sounds way cooler, right now my priorities are:
