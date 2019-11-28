@@ -32,6 +32,7 @@ private:
 	glm::mat4 viewMat;
 	PlayerMode pMode;
 	World* m_curWorld; // the world i belong to
+	AABB* myAABB;
 	unsigned short selectedBlock = 1;
 	BlockData* blockData;
 };

@@ -20,10 +20,11 @@ AABB::AABB(
 )
 	:origin(glm::vec3(io_x, io_y, io_z)),
 	size(glm::vec3(is_x, is_y, is_z)),
+	halfSize(size/2.0f),
 	dist(FLT_MAX)
 {
-	min = origin - (size/2.0f);
-	max = origin + (size/2.0f);
+	min = origin - (halfSize);
+	max = origin + (halfSize);
 	if (!boxVAO)
 	{
 		glGenVertexArrays(1, &boxVAO);
@@ -44,6 +45,7 @@ AABB::AABB(
 
 void AABB::Draw()
 {
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_CULL_FACE);
@@ -52,31 +54,38 @@ void AABB::Draw()
 	glUniformMatrix4fv(glGetUniformLocation(rendProg->GetProgID(), "view"), 1, GL_FALSE, glm::value_ptr(PublicData::Instance().viewMat));
 	glm::mat4 modelMat(1.0f);
 	modelMat = glm::translate(modelMat, this->origin);
-	modelMat = glm::scale(modelMat, glm::vec3(1.01f, 1.01f, 1.01f));
+	modelMat = glm::scale(modelMat, glm::vec3(1.01f, 1.01f, 1.01f)); // so it wont clip
+	modelMat = glm::scale(modelMat, size);
 	glUniform1f(glGetUniformLocation(rendProg->GetProgID(), "alpha"), sin(glfwGetTime()*4.0f));
 	glUniformMatrix4fv(glGetUniformLocation(rendProg->GetProgID(), "model"), 1, GL_FALSE, glm::value_ptr(modelMat));
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glDisable(GL_BLEND);
 	glEnable(GL_CULL_FACE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
+
 
 void AABB::Move(const float& d_x, const float& d_y, const float& d_z)
 {
 	origin.x += d_x;
 	origin.y += d_y;
 	origin.z += d_z;
+	min = origin - (size / 2.0f);
+	max = origin + (size / 2.0f);
 }
 void AABB::MoveAbs(const float& n_x, const float& n_y, const float& n_z)
 {
 	origin.x = n_x;
 	origin.y = n_y;
 	origin.z = n_z;
+	min = origin - (size / 2.0f);
+	max = origin + (size / 2.0f);
 }
 inline float sign(const float& in)
 {
 	return signbit(in) ? -1.0f : 1.0f;
 }
-inline glm::vec3 AABB::GetNormalFromPoint(glm::vec3 point)
+inline glm::vec3 AABB::GetNormalFromPoint(glm::vec3 point) const
 {
 	glm::vec3 norm(0);
 	glm::vec3 pDir = glm::normalize(point - origin); // normal from center to hit point
@@ -100,6 +109,133 @@ inline glm::vec3 AABB::GetNormalFromPoint(glm::vec3 point)
 	//std::cout << "Gonzo's Normal: " << foo.x << ", " << foo.y << ", " << foo.z << "\n";
 	return norm;
 }
+
+Hit* AABB::VsSegment(glm::vec3 pos, glm::vec3 delta, float paddingX, float paddingY, float paddingZ)
+{
+	glm::vec3 scale(1.0f, 1.0f, 1.0f);
+	scale /= delta;
+	float signX = sign(scale.x);
+	float signY = sign(scale.y);
+	float signZ = sign(scale.z);
+	float nearTimeX = (origin.x - signX * (halfSize.x + paddingX) - pos.x) * scale.x;
+	float nearTimeY = (origin.y - signY * (halfSize.y + paddingY) - pos.y) * scale.y;
+	float nearTimeZ = (origin.z - signZ * (halfSize.z + paddingZ) - pos.z) * scale.z;
+	float farTimeX = (origin.x + signX * (halfSize.x + paddingX) - pos.x) * scale.x;
+	float farTimeY = (origin.y + signY * (halfSize.y + paddingY) - pos.y) * scale.y;
+	float farTimeZ = (origin.z + signZ * (halfSize.z + paddingZ) - pos.z) * scale.z;
+	if (nearTimeX > farTimeY || nearTimeX > farTimeZ ||
+		nearTimeY > farTimeX || nearTimeY > farTimeZ ||
+		nearTimeZ > farTimeX || nearTimeZ > farTimeY)
+	{
+		return nullptr;
+	}
+	float nearTime, farTime;
+	if (nearTimeX > nearTimeY && nearTimeX > nearTimeZ)
+	{
+		nearTime = nearTimeX;
+	}
+	else if (nearTimeY > nearTimeZ)
+	{
+		nearTime = nearTimeY;
+	}
+	else
+	{
+		nearTime = nearTimeZ;
+	}
+	if (farTimeX > farTimeY && farTimeX > farTimeZ)
+	{
+		farTime = farTimeX;
+	}
+	else if (farTimeY > farTimeZ)
+	{
+		farTime = farTimeY;
+	}
+	else
+	{
+		farTime = farTimeZ;
+	}
+	if (nearTime >= 1.0f || farTime <= 0.0f)
+	{
+		return nullptr;
+	}
+	Hit* hit = new Hit(this);
+	hit->time = glm::clamp(nearTime, 0.0f, 1.0f);
+	if (nearTimeX > nearTimeY && nearTimeX > nearTimeZ)
+	{
+		hit->normal.x = -signX;
+		hit->normal.y = 0.0f;
+		hit->normal.z = 0.0f;
+	}
+	else if (nearTimeY > nearTimeZ)
+	{
+		hit->normal.x = 0.0f;
+		hit->normal.y = -signY;
+		hit->normal.z = 0.0f;
+	}
+	else
+	{
+		hit->normal.x = 0.0f;
+		hit->normal.y = 0.0f;
+		hit->normal.z = -signZ;
+	}
+	hit->delta.x = (1.0f - hit->time) * -delta.x;
+	hit->delta.y = (1.0f - hit->time) * -delta.y;
+	hit->delta.z = (1.0f - hit->time) * -delta.z;
+	hit->position.x = pos.x + delta.x * hit->time;
+	hit->position.y = pos.y + delta.y * hit->time;
+	hit->position.z = pos.z + delta.z * hit->time;
+	return hit;
+}
+
+Sweep* AABB::SweepVsAABB(const AABB& other, const glm::vec3 delta)
+{
+	Sweep* sweep = new Sweep();
+	sweep->hit = VsSegment(other.origin, delta, other.halfSize.x, other.halfSize.y, other.halfSize.z);
+	if (sweep->hit)
+	{
+		sweep->time = glm::clamp(sweep->hit->time - FLT_EPSILON, 0.0f, 1.0f);
+		sweep->pos.x = other.origin.x + delta.x * sweep->time;
+		sweep->pos.y = other.origin.y + delta.y * sweep->time;
+		sweep->pos.z = other.origin.z + delta.z * sweep->time;
+		glm::vec3 direction = glm::normalize(delta);
+		sweep->hit->position.x = glm::clamp(sweep->hit->position.x + direction.x * other.halfSize.x,
+			origin.x - halfSize.x, origin.x + halfSize.x);
+		sweep->hit->position.y = glm::clamp(sweep->hit->position.y + direction.y * other.halfSize.y,
+			origin.y - halfSize.y, origin.y + halfSize.y);
+		sweep->hit->position.z = glm::clamp(sweep->hit->position.z + direction.z * other.halfSize.z,
+			origin.z - halfSize.z, origin.z + halfSize.z);
+	}
+	else
+	{
+		sweep->pos.x = other.origin.x + delta.x;
+		sweep->pos.y = other.origin.y + delta.y;
+		sweep->pos.z = other.origin.z + delta.z;
+		sweep->time = 1.0f;
+	}
+	return sweep;
+}
+
+Sweep* AABB::SweepIntoAABBs(AABB* aabbGrid, const size_t numAABBs, const glm::vec3& delta)
+{
+	Sweep* nearest = new Sweep();
+	nearest->time = 1.0f;
+	nearest->pos = origin + delta;
+	for (size_t i = 0; i < numAABBs; i++)
+	{
+		Sweep* sw = aabbGrid[i].SweepVsAABB(*this, delta);
+		if (sw->time < nearest->time)
+		{
+			delete nearest;
+			nearest = sw;
+		}
+		else
+		{
+			delete sw;
+		}
+	}
+	return nearest;
+}
+
 bool AABB::VsRay(const Ray& ray, float* tNear, glm::vec3* normal)
 {
 	glm::vec3 T_1, T_2;
@@ -133,6 +269,39 @@ bool AABB::VsRay(const Ray& ray, float* tNear, glm::vec3* normal)
 	if (normal)
 	{
 		*normal = GetNormalFromPoint((ray.origin) + (ray.direction * (float)t_near));
+	}
+	return true;
+}
+
+bool AABB::VsAABB(const AABB& other, glm::vec3* normal)
+{
+	float dx = other.origin.x - origin.x;
+	float dy = other.origin.y - origin.y;
+	float dz = other.origin.z - origin.z;
+	float px = (other.size.x + size.x) - abs(dx);
+	float py = (other.size.y + size.y) - abs(dy);
+	float pz = (other.size.z + size.z) - abs(dz);
+	if (px <= 0.0f || py <= 0.0f || pz <= 0.0f) return false;
+	if (px < py && px < pz)
+	{
+		float sx = sign(dx);
+		normal->x = px * sx;
+		normal->y = 0.0f;
+		normal->z = 0.0f;
+	}
+	else if (py < pz)
+	{
+		float sy = sign(dy);
+		normal->x = 0.0f;
+		normal->y = py * sy;
+		normal->z = 0.0f;
+	}
+	else
+	{
+		float sz = sign(dz);
+		normal->x = 0.0f;
+		normal->y = 0.0f;
+		normal->z = pz * sz;
 	}
 	return true;
 }

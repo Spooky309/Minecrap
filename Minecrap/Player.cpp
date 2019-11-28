@@ -1,12 +1,14 @@
 #include "Player.h"
 #include "Input.h"
 #include <iostream>
+#include <vector>
 #include <glm/gtc/matrix_transform.hpp>
 Player::Player(World* world, BlockData* bd, const glm::vec3& initPos, const PlayerMode& pMode)
 	:pPos(initPos),
 	pEuler(glm::vec3(0.0f, 0.0f, 0.0f)),
 	pUp(glm::vec3(0.0f, 1.0f, 0.0f)),
 	m_curWorld(world),
+	myAABB(new AABB(pPos.x, pPos.y - 0.75f, pPos.z, 0.5f, 1.5f, 0.5f)),
 	blockData(bd)
 {
 	pFwd.x = cos(glm::radians(pEuler.x)) * cos(glm::radians(pEuler.y));
@@ -39,30 +41,43 @@ void Player::Update(const float& dTime)
 		pFwd = glm::normalize(pFwd);
 		pRight = glm::normalize(glm::cross(pFwd, pUp));
 	}
+	glm::vec3 velocity(0.0f, -9.8f * (dTime), 0.0f);
+	velocity.y = 0.0f;
 	if (Input::Instance().GetKey(GLFW_KEY_W))
 	{
-		pPos += (pFwd * (float)dTime)* 5.0f;
+		velocity += (pFwd * (float)dTime)* 5.0f;
 	}
 	if (Input::Instance().GetKey(GLFW_KEY_S))
 	{
-		pPos -= (pFwd * (float)dTime)*5.0f;
+		velocity -= (pFwd * (float)dTime)*5.0f;
 	}
 	if (Input::Instance().GetKey(GLFW_KEY_A))
 	{
-		pPos -= (pRight * (float)dTime)*5.0f;
+		velocity -= (pRight * (float)dTime)*5.0f;
 	}
 	if (Input::Instance().GetKey(GLFW_KEY_D))
 	{
-		pPos += (pRight * (float)dTime)*5.0f;
+		velocity += (pRight * (float)dTime)*5.0f;
 	}
 	if (Input::Instance().GetKey(GLFW_KEY_Q))
 	{
-		pPos += (pUp * (float)dTime)*5.0f;
+		velocity += (pUp * (float)dTime)*5.0f;
 	}
 	if (Input::Instance().GetKey(GLFW_KEY_E))
 	{
-		pPos -= (pUp * (float)dTime)*5.0f;
+		velocity -= (pUp * (float)dTime)*5.0f;
 	}
+	//glm::vec3 prospectivePos = pPos + velocity;
+	myAABB->MoveAbs(pPos.x, pPos.y, pPos.z);
+	Sweep* sw = myAABB->SweepIntoAABBs(m_curWorld->GetAABB(0), m_curWorld->GetNumAABBs(), velocity);
+	myAABB->Draw();
+	if (sw->hit)
+	{
+		velocity -= sw->hit->normal * (glm::dot(velocity, sw->hit->normal));
+		delete sw;
+		//sw = myAABB->SweepIntoAABBs(m_curWorld->GetAABB(0), m_curWorld->GetNumAABBs(), velocity);
+	}
+	pPos += velocity;
 	int pXp = (int)roundf(pPos.x);
 	int pYp = (int)roundf(pPos.y);
 	int pZp = (int)roundf(pPos.z);

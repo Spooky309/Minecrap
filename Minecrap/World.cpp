@@ -104,10 +104,16 @@ void World::RenderWorld()
 		curMesher->MeshWorld(this, &m_wMeshes);
 		remeshRequired = false;
 	}
+	
 	// Render world...
 	glBindTexture(GL_TEXTURE_2D, m_texDict->GetTexture().glTex);
 	glBindVertexArray(m_wMeshes[0]->GetVAOs()[0].first);
 	glDrawArrays(GL_TRIANGLES, 0, m_wMeshes[0]->tCount);
+	for (size_t i = 0; i < num_aabbs; i++)
+	{
+		if (AABBGrid[i].alive)
+			AABBGrid[i].Draw();
+	}
 }
 unsigned long long World::GetWidth()
 {
