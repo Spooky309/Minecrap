@@ -31,3 +31,12 @@ glm
 # Where can I build it?
 
 Right now, only Windows, due to Filesystem.h, it would be easy to add Linux and macOS support to this, but I'm lazy.
+
+# Thanks to...
+
+Mojang for the textures I stole (they're placeholders!!!)  
+This guy on the internet who wrote about a bunch of detailed 2D AABB tests which I turned into 3D  
+Everyone who gave me the validation I needed to be motivated to continue with this, as long as I do  
+My parents for being cool
+
+^^ahoy ^^spongebob, ^^i ^^have ^^broken ^^several ^^copyright ^^and ^^trademark ^^laws ^^and ^^am ^^going ^^to ^^be ^^sentenced ^^to ^^life ^^in ^^prison ^^agagagagagagagag
