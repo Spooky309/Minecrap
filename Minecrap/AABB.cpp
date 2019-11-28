@@ -113,7 +113,9 @@ inline glm::vec3 AABB::GetNormalFromPoint(glm::vec3 point) const
 Hit* AABB::VsSegment(glm::vec3 pos, glm::vec3 delta, float paddingX, float paddingY, float paddingZ)
 {
 	glm::vec3 scale(1.0f, 1.0f, 1.0f);
-	scale /= delta;
+	scale.x /= delta.x;
+	scale.y /= delta.y;
+	scale.z /= delta.z;
 	float signX = sign(scale.x);
 	float signY = sign(scale.y);
 	float signZ = sign(scale.z);
@@ -142,11 +144,11 @@ Hit* AABB::VsSegment(glm::vec3 pos, glm::vec3 delta, float paddingX, float paddi
 	{
 		nearTime = nearTimeZ;
 	}
-	if (farTimeX > farTimeY && farTimeX > farTimeZ)
+	if (farTimeX < farTimeY && farTimeX < farTimeZ)
 	{
 		farTime = farTimeX;
 	}
-	else if (farTimeY > farTimeZ)
+	else if (farTimeY < farTimeZ)
 	{
 		farTime = farTimeY;
 	}
@@ -178,7 +180,7 @@ Hit* AABB::VsSegment(glm::vec3 pos, glm::vec3 delta, float paddingX, float paddi
 		hit->normal.y = 0.0f;
 		hit->normal.z = -signZ;
 	}
-	hit->delta.x = (1.0f - hit->time) * -delta.x;
+ 	hit->delta.x = (1.0f - hit->time) * -delta.x;
 	hit->delta.y = (1.0f - hit->time) * -delta.y;
 	hit->delta.z = (1.0f - hit->time) * -delta.z;
 	hit->position.x = pos.x + delta.x * hit->time;
@@ -190,6 +192,15 @@ Hit* AABB::VsSegment(glm::vec3 pos, glm::vec3 delta, float paddingX, float paddi
 Sweep* AABB::SweepVsAABB(const AABB& other, const glm::vec3 delta)
 {
 	Sweep* sweep = new Sweep();
+	if (delta.x == 0.0f && delta.y == 0.0f && delta.z == 0.0f)
+	{
+		sweep->pos.x = other.origin.x;
+		sweep->pos.y = other.origin.y;
+		sweep->pos.z = other.origin.z;
+		sweep->hit = VsAABB(other);
+		sweep->time = sweep->hit ? (sweep->hit->time = 0) : 1;
+		return sweep;
+	}
 	sweep->hit = VsSegment(other.origin, delta, other.halfSize.x, other.halfSize.y, other.halfSize.z);
 	if (sweep->hit)
 	{
@@ -220,17 +231,22 @@ Sweep* AABB::SweepIntoAABBs(AABB* aabbGrid, const size_t numAABBs, const glm::ve
 	Sweep* nearest = new Sweep();
 	nearest->time = 1.0f;
 	nearest->pos = origin + delta;
-	for (size_t i = 0; i < numAABBs; i++)
-	{
-		Sweep* sw = aabbGrid[i].SweepVsAABB(*this, delta);
-		if (sw->time < nearest->time)
+	if (fabs(delta.x) > 0.0f || fabs(delta.y) > 0.0f || fabs(delta.z) > 0.0f) {
+		for (size_t i = 0; i < numAABBs; i++)
 		{
-			delete nearest;
-			nearest = sw;
-		}
-		else
-		{
-			delete sw;
+			if (aabbGrid[i].alive)
+			{
+				Sweep* sw = aabbGrid[i].SweepVsAABB(*this, delta);
+				if (sw->time < nearest->time)
+				{
+					delete nearest;
+					nearest = sw;
+				}
+				else
+				{
+					delete sw;
+				}
+			}
 		}
 	}
 	return nearest;
@@ -273,35 +289,42 @@ bool AABB::VsRay(const Ray& ray, float* tNear, glm::vec3* normal)
 	return true;
 }
 
-bool AABB::VsAABB(const AABB& other, glm::vec3* normal)
+Hit* AABB::VsAABB(const AABB& other)
 {
 	float dx = other.origin.x - origin.x;
 	float dy = other.origin.y - origin.y;
 	float dz = other.origin.z - origin.z;
-	float px = (other.size.x + size.x) - abs(dx);
-	float py = (other.size.y + size.y) - abs(dy);
-	float pz = (other.size.z + size.z) - abs(dz);
-	if (px <= 0.0f || py <= 0.0f || pz <= 0.0f) return false;
+	float px = (other.halfSize.x + halfSize.x) - abs(dx);
+	float py = (other.halfSize.y + halfSize.y) - abs(dy);
+	float pz = (other.halfSize.z + halfSize.z) - abs(dz);
+	if (px <= 0.0f || py <= 0.0f || pz <= 0.0f) return nullptr;
+	Hit* hit = new Hit(this);
 	if (px < py && px < pz)
 	{
 		float sx = sign(dx);
-		normal->x = px * sx;
-		normal->y = 0.0f;
-		normal->z = 0.0f;
+		hit->delta.x = px * sx;
+		hit->normal.x = sx;
+		hit->position.x = origin.x + (halfSize.x * sx);
+		hit->position.y = origin.y;
+		hit->position.z = origin.z;
 	}
 	else if (py < pz)
 	{
 		float sy = sign(dy);
-		normal->x = 0.0f;
-		normal->y = py * sy;
-		normal->z = 0.0f;
+		hit->delta.y = py * sy;
+		hit->normal.y = sy;
+		hit->position.x = origin.x;
+		hit->position.y = origin.y + (halfSize.y * sy);
+		hit->position.z = origin.z;
 	}
 	else
 	{
 		float sz = sign(dz);
-		normal->x = 0.0f;
-		normal->y = 0.0f;
-		normal->z = pz * sz;
+		hit->delta.z = px * sz;
+		hit->normal.z = sz;
+		hit->position.x = origin.x;
+		hit->position.y = origin.y;
+		hit->position.z = origin.z + (halfSize.z * sz);
 	}
-	return true;
+	return hit;
 }

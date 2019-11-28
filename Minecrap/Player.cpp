@@ -25,6 +25,16 @@ glm::mat4 Player::GetViewMatrix()
 
 void Player::Update(const float& dTime)
 {
+	int pXp = (int)roundf(pPos.x);
+	int pYp = (int)roundf(pPos.y);
+	int pZp = (int)roundf(pPos.z);
+	if (pXp != xP || pYp != yP || pZp != zP)
+	{
+		xP = pXp;
+		yP = pYp;
+		zP = pZp;
+		m_curWorld->ForceAABBRegen(xP, yP, zP);
+	}
 	float mdx = Input::Instance().GetMouseDeltaX();
 	float mdy = Input::Instance().GetMouseDeltaY();
 	if (mdx != 0.0f || mdy != 0.0f)
@@ -41,8 +51,9 @@ void Player::Update(const float& dTime)
 		pFwd = glm::normalize(pFwd);
 		pRight = glm::normalize(glm::cross(pFwd, pUp));
 	}
+	//std::cout << pFwd.x << ", " << pFwd.y << ", " << pFwd.z << "\n";
 	glm::vec3 velocity(0.0f, -9.8f * (dTime), 0.0f);
-	velocity.y = 0.0f;
+	//velocity.y = 0.0f;
 	if (Input::Instance().GetKey(GLFW_KEY_W))
 	{
 		velocity += (pFwd * (float)dTime)* 5.0f;
@@ -68,26 +79,18 @@ void Player::Update(const float& dTime)
 		velocity -= (pUp * (float)dTime)*5.0f;
 	}
 	//glm::vec3 prospectivePos = pPos + velocity;
-	myAABB->MoveAbs(pPos.x, pPos.y, pPos.z);
+	myAABB->MoveAbs(pPos.x, pPos.y - 0.75f, pPos.z);
 	Sweep* sw = myAABB->SweepIntoAABBs(m_curWorld->GetAABB(0), m_curWorld->GetNumAABBs(), velocity);
-	myAABB->Draw();
-	if (sw->hit)
+	//myAABB->Draw();
+	while (sw->hit)
 	{
 		velocity -= sw->hit->normal * (glm::dot(velocity, sw->hit->normal));
 		delete sw;
-		//sw = myAABB->SweepIntoAABBs(m_curWorld->GetAABB(0), m_curWorld->GetNumAABBs(), velocity);
+		sw = myAABB->SweepIntoAABBs(m_curWorld->GetAABB(0), m_curWorld->GetNumAABBs(), velocity);
 	}
+	delete sw;
 	pPos += velocity;
-	int pXp = (int)roundf(pPos.x);
-	int pYp = (int)roundf(pPos.y);
-	int pZp = (int)roundf(pPos.z);
-	if (pXp != xP || pYp != yP || pZp != zP)
-	{
-		xP = pXp;
-		yP = pYp;
-		zP = pZp;
-		m_curWorld->ForceAABBRegen(xP, yP, zP);
-	}
+	
 	AABB* aabbHit = nullptr;
 	glm::vec3 normHit;
 	for (size_t i = 0; i < m_curWorld->GetNumAABBs(); i++)

@@ -87,7 +87,7 @@ public:
 	void Move(const float& d_x, const float& d_y, const float& d_z);
 	void MoveAbs(const float& n_x, const float& n_y, const float& n_z);
 	bool VsRay(const Ray& ray, float* tNear, glm::vec3* normal = nullptr);
-	bool VsAABB(const AABB& other, glm::vec3* normal);
+	Hit* VsAABB(const AABB& other);
 	Hit* VsSegment(glm::vec3 pos, glm::vec3 delta, float paddingX = 0.0f, float paddingY = 0.0f, float paddingZ = 0.0f);
 	Sweep* SweepVsAABB(const AABB& other, const glm::vec3 delta);
 	Sweep* SweepIntoAABBs(AABB* aabbGrid, const size_t numAABBs, const glm::vec3& delta);
