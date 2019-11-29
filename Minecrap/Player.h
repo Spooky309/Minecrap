@@ -26,10 +26,15 @@ private:
 	int zP;
 	// Cardinal vectors
 	glm::vec3 pFwd;
+	glm::vec3 aFwd;
 	glm::vec3 pRight;
 	glm::vec3 pUp;
 	// View Matrix
 	glm::mat4 viewMat;
+	// Movement stuff
+	glm::vec3 velocity;
+	float drag = 0.5f;
+	bool grounded = false;
 	PlayerMode pMode;
 	World* m_curWorld; // the world i belong to
 	AABB* myAABB;

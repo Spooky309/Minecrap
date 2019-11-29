@@ -2,6 +2,7 @@
 #include "Input.h"
 #include <iostream>
 #include <vector>
+#include <glm/gtx/compatibility.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 Player::Player(World* world, BlockData* bd, const glm::vec3& initPos, const PlayerMode& pMode)
 	:pPos(initPos),
@@ -49,10 +50,15 @@ void Player::Update(const float& dTime)
 		pFwd.y = sin(glm::radians(pEuler.y));
 		pFwd.z = sin(glm::radians(pEuler.x)) * cos(glm::radians(pEuler.y));
 		pFwd = glm::normalize(pFwd);
+		aFwd.x = cos(glm::radians(pEuler.x));
+		aFwd.y = 0;
+		aFwd.z = sin(glm::radians(pEuler.x));
+		aFwd = glm::normalize(aFwd);
 		pRight = glm::normalize(glm::cross(pFwd, pUp));
 	}
 	//std::cout << pFwd.x << ", " << pFwd.y << ", " << pFwd.z << "\n";
-	glm::vec3 velocity(0.0f, -9.8f * (dTime), 0.0f);
+	//glm::vec3 velocity(0.0f, -9.8f * (dTime), 0.0f);
+	
 	if (Input::Instance().GetKeyDown(GLFW_KEY_G))
 	{
 		gravity = !gravity;
@@ -62,47 +68,71 @@ void Player::Update(const float& dTime)
 		else
 			std::cout << "disabled\n";
 	}
-	if (!gravity)
+	if ( gravity)
 	{
-		velocity.y = 0.0f;
+		velocity += glm::vec3(0.0f, -0.5f, 0.0f);
 	}
 	if (Input::Instance().GetKey(GLFW_KEY_W))
 	{
-		velocity += (pFwd * (float)dTime)* 5.0f;
+		velocity += (gravity ? aFwd : pFwd) * 5.0f;
 	}
 	if (Input::Instance().GetKey(GLFW_KEY_S))
 	{
-		velocity -= (pFwd * (float)dTime)*5.0f;
+		velocity -= (gravity ? aFwd : pFwd) * 5.0f;
 	}
 	if (Input::Instance().GetKey(GLFW_KEY_A))
 	{
-		velocity -= (pRight * (float)dTime)*5.0f;
+		velocity -= pRight *5.0f;
 	}
 	if (Input::Instance().GetKey(GLFW_KEY_D))
 	{
-		velocity += (pRight * (float)dTime)*5.0f;
+		velocity += pRight * 5.0f;
 	}
 	if (Input::Instance().GetKey(GLFW_KEY_Q))
 	{
-		velocity += (pUp * (float)dTime)*5.0f;
+		velocity += pUp * 5.0f;
 	}
 	if (Input::Instance().GetKey(GLFW_KEY_E))
 	{
-		velocity -= (pUp * (float)dTime)*5.0f;
+		velocity -= pUp * 5.0f;
 	}
-	//glm::vec3 prospectivePos = pPos + velocity;
+	if (Input::Instance().GetKey(GLFW_KEY_SPACE) && grounded)
+	{
+		velocity += (pUp * 10.0f);
+	}
+	//velocity = glm::clamp(velocity, terminalVelocity, -terminalVelocity);
+	velocity.x = glm::lerp(velocity.x, 0.0f, drag);
+	velocity.z = glm::lerp(velocity.z, 0.0f, drag);
 	myAABB->MoveAbs(pPos.x, pPos.y - 0.5f, pPos.z);
-	Sweep* sw = myAABB->SweepIntoAABBs(m_curWorld->GetAABB(0), m_curWorld->GetNumAABBs(), velocity);
+	glm::vec3 delta = velocity * dTime;
+	Sweep* sw = myAABB->SweepIntoAABBs(m_curWorld->GetAABB(0), m_curWorld->GetNumAABBs(), delta);
 	//myAABB->Draw();
+	// assume we aren't grounded, then figure out if we are.
+	glm::vec3 oldvel = velocity;
+	int testi = 0;
 	while (sw->hit)
 	{
-		velocity -= sw->hit->normal * (glm::dot(velocity, sw->hit->normal));
+		delta -= sw->hit->normal * glm::dot(delta, sw->hit->normal);
+		velocity-= sw->hit->normal * glm::dot(velocity, sw->hit->normal);
 		delete sw;
-		sw = myAABB->SweepIntoAABBs(m_curWorld->GetAABB(0), m_curWorld->GetNumAABBs(), velocity);
+		sw = myAABB->SweepIntoAABBs(m_curWorld->GetAABB(0), m_curWorld->GetNumAABBs(), delta);
+		testi++;
+		if (testi == 10)
+		{
+			break;
+		}
+	}
+	if (delta.y == 0.0f && oldvel.y != 0.0f)
+	{
+		//velocity.y = 0.0f;
+		grounded = true;
+	}
+	else
+	{
+		grounded = false;
 	}
 	delete sw;
-	pPos += velocity;
-	
+	pPos += delta;
 	AABB* aabbHit = nullptr;
 	glm::vec3 normHit;
 	for (size_t i = 0; i < m_curWorld->GetNumAABBs(); i++)
