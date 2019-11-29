@@ -24,7 +24,7 @@ int main()
 	GLFWwindow* wind = glfwCreateWindow(1024, 768, "Minecrap", nullptr, nullptr);
 	glfwMakeContextCurrent(wind);
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-	glfwSwapInterval(1);
+	glfwSwapInterval(0);
 	glClearColor(0.2f, 0.0f, 0.4f, 1.0f);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);

@@ -71,6 +71,10 @@ public:
 		pos = glm::vec3(0);
 		time = 0.0f;
 	}
+	~Sweep()
+	{
+		delete hit;
+	}
 };
 
 class AABB

@@ -7,6 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "PublicData.h"
 #include <GLFW/glfw3.h>
+#include <limits>
 GLuint AABB::boxVBO;
 GLuint AABB::boxVAO;
 ShaderProgram* AABB::rendProg;
@@ -204,7 +205,7 @@ Sweep* AABB::SweepVsAABB(const AABB& other, const glm::vec3 delta)
 	sweep->hit = VsSegment(other.origin, delta, other.halfSize.x, other.halfSize.y, other.halfSize.z);
 	if (sweep->hit)
 	{
-		sweep->time = glm::clamp(sweep->hit->time - FLT_EPSILON, 0.0f, 1.0f);
+		sweep->time = glm::clamp(sweep->hit->time - std::numeric_limits<float>().epsilon(), 0.0f, 1.0f);
 		sweep->pos.x = other.origin.x + delta.x * sweep->time;
 		sweep->pos.y = other.origin.y + delta.y * sweep->time;
 		sweep->pos.z = other.origin.z + delta.z * sweep->time;

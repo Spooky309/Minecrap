@@ -9,7 +9,7 @@ Player::Player(World* world, BlockData* bd, const glm::vec3& initPos, const Play
 	pEuler(glm::vec3(0.0f, 0.0f, 0.0f)),
 	pUp(glm::vec3(0.0f, 1.0f, 0.0f)),
 	m_curWorld(world),
-	myAABB(new AABB(pPos.x, pPos.y - 0.75f, pPos.z, 0.5f, 1.75f, 0.5f)),
+	myAABB(new AABB(pPos.x, pPos.y, pPos.z, 0.5f, 1.75f, 0.5f)),
 	blockData(bd)
 {
 	pFwd.x = cos(glm::radians(pEuler.x)) * cos(glm::radians(pEuler.y));
@@ -21,7 +21,9 @@ Player::Player(World* world, BlockData* bd, const glm::vec3& initPos, const Play
 
 glm::mat4 Player::GetViewMatrix()
 {
-	return glm::lookAt(pPos, pPos + pFwd, pUp);
+	glm::vec3 vPos = pPos;
+	//vPos.y += 0.5f;
+	return glm::lookAt(vPos, vPos + pFwd, pUp);
 }
 
 void Player::Update(const float& dTime)
@@ -68,9 +70,9 @@ void Player::Update(const float& dTime)
 		else
 			std::cout << "disabled\n";
 	}
-	if ( gravity)
+	if (gravity)
 	{
-		velocity += glm::vec3(0.0f, -0.5f, 0.0f);
+		//velocity += glm::vec3(0.0f, -40.0f, 0.0f);
 	}
 	if (Input::Instance().GetKey(GLFW_KEY_W))
 	{
@@ -96,33 +98,34 @@ void Player::Update(const float& dTime)
 	{
 		velocity -= pUp * 5.0f;
 	}
-	if (Input::Instance().GetKey(GLFW_KEY_SPACE) && grounded)
+	if (Input::Instance().GetKeyDown(GLFW_KEY_SPACE) && grounded)
 	{
 		velocity += (pUp * 10.0f);
 	}
 	//velocity = glm::clamp(velocity, terminalVelocity, -terminalVelocity);
 	velocity.x = glm::lerp(velocity.x, 0.0f, drag);
+	if (gravity) velocity.y = glm::lerp(velocity.y, -40.0f, 0.75f * dTime);
 	velocity.z = glm::lerp(velocity.z, 0.0f, drag);
 	myAABB->MoveAbs(pPos.x, pPos.y - 0.5f, pPos.z);
 	glm::vec3 delta = velocity * dTime;
 	Sweep* sw = myAABB->SweepIntoAABBs(m_curWorld->GetAABB(0), m_curWorld->GetNumAABBs(), delta);
 	//myAABB->Draw();
-	// assume we aren't grounded, then figure out if we are.
 	glm::vec3 oldvel = velocity;
 	int testi = 0;
 	while (sw->hit)
 	{
 		delta -= sw->hit->normal * glm::dot(delta, sw->hit->normal);
-		velocity-= sw->hit->normal * glm::dot(velocity, sw->hit->normal);
+		velocity -= sw->hit->normal * glm::dot(velocity, sw->hit->normal);
 		delete sw;
 		sw = myAABB->SweepIntoAABBs(m_curWorld->GetAABB(0), m_curWorld->GetNumAABBs(), delta);
 		testi++;
 		if (testi == 10)
 		{
+			std::cout << "Attempted to test more than 10 AABBs, this is probably a bug\n";
 			break;
 		}
 	}
-	if (delta.y == 0.0f && oldvel.y != 0.0f)
+	if (delta.y == 0.0f && oldvel.y < 0.0f)
 	{
 		//velocity.y = 0.0f;
 		grounded = true;
@@ -131,8 +134,16 @@ void Player::Update(const float& dTime)
 	{
 		grounded = false;
 	}
+	if (delta.length() == 0.0f && oldvel.length() != 0.0f)
+	{
+		pPos = sw->pos;
+	}
+	else
+	{
+		pPos += delta;
+	}
 	delete sw;
-	pPos += delta;
+	
 	AABB* aabbHit = nullptr;
 	glm::vec3 normHit;
 	for (size_t i = 0; i < m_curWorld->GetNumAABBs(); i++)
