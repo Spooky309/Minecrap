@@ -41,7 +41,7 @@ glm
 
 # Where can I build it?
 
-Right now, only Windows, due to Filesystem.h, it would be easy to add Linux and macOS support to this, but I'm lazy.
+The CMAKE build MAY work on Visual Studio with some configuration, however I haven't tested it. I know it builds on Linux with `clang++`, `g++` not tested. All my code should be portable between Linux and Windows (MacOS not supported as of now).
 
 # Thanks to...
 
