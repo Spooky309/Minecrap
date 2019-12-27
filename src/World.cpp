@@ -133,5 +133,5 @@ unsigned long long World::GetSize()
 }
 World::~World() 
 {
-	delete[m_wSize] m_wData;
+	delete[] m_wData;
 }

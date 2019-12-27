@@ -84,7 +84,7 @@ void AABB::MoveAbs(const float& n_x, const float& n_y, const float& n_z)
 }
 inline float sign(const float& in)
 {
-	return signbit(in) ? -1.0f : 1.0f;
+	return std::signbit(in) ? -1.0f : 1.0f;
 }
 inline glm::vec3 AABB::GetNormalFromPoint(glm::vec3 point) const
 {
