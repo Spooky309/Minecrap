@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "Input.h"
+#include "Engine.h"
 #include <iostream>
 #include <vector>
 #include <glm/gtx/compatibility.hpp>
@@ -38,8 +39,8 @@ void Player::Update(const float& dTime)
 		zP = pZp;
 		m_curWorld->ForceAABBRegen(xP, yP, zP);
 	}
-	float mdx = Input::Instance().GetMouseDeltaX();
-	float mdy = Input::Instance().GetMouseDeltaY();
+	float mdx = Engine::Instance().GetInput().GetMouseDeltaX();
+	float mdy = Engine::Instance().GetInput().GetMouseDeltaY();
 	if (mdx != 0.0f || mdy != 0.0f)
 	{
 		pEuler.x += mdx;
@@ -61,7 +62,7 @@ void Player::Update(const float& dTime)
 	//std::cout << pFwd.x << ", " << pFwd.y << ", " << pFwd.z << "\n";
 	//glm::vec3 velocity(0.0f, -9.8f * (dTime), 0.0f);
 	
-	if (Input::Instance().GetKeyDown(GLFW_KEY_G))
+	if (Engine::Instance().GetInput().GetKeyDown(GLFW_KEY_G))
 	{
 		gravity = !gravity;
 		std::cout << "Player gravity ";
@@ -74,31 +75,31 @@ void Player::Update(const float& dTime)
 	{
 		//velocity += glm::vec3(0.0f, -40.0f, 0.0f);
 	}
-	if (Input::Instance().GetKey(GLFW_KEY_W))
+	if (Engine::Instance().GetInput().GetKey(GLFW_KEY_W))
 	{
 		velocity += (gravity ? aFwd : pFwd) * 5.0f;
 	}
-	if (Input::Instance().GetKey(GLFW_KEY_S))
+	if (Engine::Instance().GetInput().GetKey(GLFW_KEY_S))
 	{
 		velocity -= (gravity ? aFwd : pFwd) * 5.0f;
 	}
-	if (Input::Instance().GetKey(GLFW_KEY_A))
+	if (Engine::Instance().GetInput().GetKey(GLFW_KEY_A))
 	{
 		velocity -= pRight *5.0f;
 	}
-	if (Input::Instance().GetKey(GLFW_KEY_D))
+	if (Engine::Instance().GetInput().GetKey(GLFW_KEY_D))
 	{
 		velocity += pRight * 5.0f;
 	}
-	if (Input::Instance().GetKey(GLFW_KEY_Q))
+	if (Engine::Instance().GetInput().GetKey(GLFW_KEY_Q))
 	{
 		velocity += pUp * 5.0f;
 	}
-	if (Input::Instance().GetKey(GLFW_KEY_E))
+	if (Engine::Instance().GetInput().GetKey(GLFW_KEY_E))
 	{
 		velocity -= pUp * 5.0f;
 	}
-	if (Input::Instance().GetKeyDown(GLFW_KEY_SPACE) && grounded)
+	if (Engine::Instance().GetInput().GetKeyDown(GLFW_KEY_SPACE) && grounded)
 	{
 		velocity += (pUp * 10.0f);
 	}
@@ -169,16 +170,16 @@ void Player::Update(const float& dTime)
 			}
 		}
 	}
-
+	lookAABB = aabbHit;
 	if (aabbHit && aabbHit->alive)
 	{
 		aabbHit->Draw();
-		if (Input::Instance().GetMouseButtonDown(0))
+		if (Engine::Instance().GetInput().GetMouseButtonDown(0))
 		{
 			aabbHit->alive = false;
 			m_curWorld->SetBlockAt(aabbHit->ws_x, aabbHit->ws_y, aabbHit->ws_z, 0);
 		}
-		if (Input::Instance().GetMouseButtonDown(1))
+		if (Engine::Instance().GetInput().GetMouseButtonDown(1))
 		{
 			AABB testAABB = AABB(aabbHit->origin.x + normHit.x, aabbHit->origin.y + normHit.y, aabbHit->origin.z + normHit.z);
 			Hit* hit = myAABB->VsAABB(testAABB);
@@ -191,10 +192,15 @@ void Player::Update(const float& dTime)
 				m_curWorld->ForceAABBRegen(xP, yP, zP);
 			}
 		}
-		if (Input::Instance().GetMouseButtonDown(2))
+		if (Engine::Instance().GetInput().GetMouseButtonDown(2))
 		{
 			selectedBlock = m_curWorld->GetBlockAt(aabbHit->ws_x, aabbHit->ws_y, aabbHit->ws_z);
 			std::cout << "Selected " << blockData->GetBlockByID(selectedBlock)->internalName << "\n";
 		}
 	}
+}
+
+AABB* Player::GetLookAABB()
+{
+	return lookAABB;
 }

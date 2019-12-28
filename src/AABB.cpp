@@ -5,8 +5,8 @@
 #include <algorithm>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "PublicData.h"
-#include <GLFW/glfw3.h>
+#include "Engine.h"
+#include "OpenGLW.h"
 #include <limits>
 GLuint AABB::boxVBO;
 GLuint AABB::boxVAO;
@@ -40,7 +40,7 @@ AABB::AABB(
 	{
 		rendProg = ShaderManager::Instance().LoadShaderProgram("aabb");
 		rendProg->Use();
-		glUniformMatrix4fv(glGetUniformLocation(rendProg->GetProgID(), "proj"), 1, GL_FALSE, glm::value_ptr(PublicData::Instance().projMat));
+		rendProg->SetProjectionMatrix(Engine::Instance().GetGraphics().GetRenderProgram()->GetProjectionMatrix());
 	}
 }
 
@@ -52,13 +52,13 @@ void AABB::Draw()
 	glDisable(GL_CULL_FACE);
 	glBindVertexArray(boxVAO);
 	rendProg->Use();
-	glUniformMatrix4fv(glGetUniformLocation(rendProg->GetProgID(), "view"), 1, GL_FALSE, glm::value_ptr(PublicData::Instance().viewMat));
+	rendProg->SetViewMatrix(Engine::Instance().GetGraphics().GetRenderProgram()->GetViewMatrix());
 	glm::mat4 modelMat(1.0f);
 	modelMat = glm::translate(modelMat, this->origin);
 	modelMat = glm::scale(modelMat, glm::vec3(1.01f, 1.01f, 1.01f)); // so it wont clip
 	modelMat = glm::scale(modelMat, size);
 	glUniform1f(glGetUniformLocation(rendProg->GetProgID(), "alpha"), sin(glfwGetTime()*4.0f));
-	glUniformMatrix4fv(glGetUniformLocation(rendProg->GetProgID(), "model"), 1, GL_FALSE, glm::value_ptr(modelMat));
+	rendProg->SetModelMatrix(modelMat);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glDisable(GL_BLEND);
 	glEnable(GL_CULL_FACE);

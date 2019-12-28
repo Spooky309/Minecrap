@@ -1,15 +1,11 @@
 #pragma once
-#include <GLFW/glfw3.h>
+#include "OpenGLW.h"
 class Input
 {
 public:
-	static Input& Instance()
-	{
-		static Input _inst;
-		return _inst;
-	}
-	void Init(GLFWwindow* wind);
-	void Update(GLFWwindow* wind);
+	Input() = default;
+	~Input() = default;
+	friend class Engine;
 	bool GetKey(const int& key);
 	bool GetKeyDown(const int& key);
 	bool GetKeyUp(const int& key);
@@ -34,8 +30,8 @@ private:
 	float m_mdx;
 	float m_mdy;
 	float m_mSensitivity = 0.25f;
+	void Init(GLFWwindow* wind);
+	void Update(GLFWwindow* wind);
 	GLFWwindow* win;
-	Input() = default;
-	~Input() = default;
 	Input(const Input&) = delete;
 };

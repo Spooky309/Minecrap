@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "glad.h"
+#include "OpenGLW.h"
 class WorldRenderMesh 
 {
 public:

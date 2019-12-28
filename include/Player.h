@@ -15,6 +15,7 @@ public:
 		const PlayerMode& pMode = PlayerMode::NONE);
 	void Update(const float& dTime);
 	glm::mat4 GetViewMatrix();
+	AABB* GetLookAABB();
 private:
 	// Euler Angle Representation
 	glm::vec3 pEuler;
@@ -38,6 +39,7 @@ private:
 	PlayerMode pMode;
 	World* m_curWorld; // the world i belong to
 	AABB* myAABB;
+	AABB* lookAABB;
 	bool gravity = true;
 	unsigned short selectedBlock = 1;
 	BlockData* blockData;

@@ -3,8 +3,7 @@
 #include <vector>
 #include <fstream>
 #include <png.h>
-#include "glad.h"
-#include <GLFW/glfw3.h>
+#include "OpenGLW.h"
 class texture {
 public:
 	texture(const std::string& path) {

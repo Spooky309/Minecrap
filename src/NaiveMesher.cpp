@@ -1,8 +1,7 @@
 #include "NaiveMesher.h"
 #include <glm/glm.hpp>
 #include "World.h"
-#include "glad.h"
-#include <GLFW/glfw3.h>
+#include "OpenGLW.h"
 #include <iostream>
 // Naive mesher prevents unviewable faces from being added to the mesh
 // however it does not combine adjacent parallel faces, and cannot modify an existing

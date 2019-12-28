@@ -1,5 +1,5 @@
 #pragma once
-#include "glad.h"
+#include "OpenGLW.h"
 #include <string>
 class Shader
 {

@@ -1,5 +1,6 @@
 #include "World.h"
 #include "NaiveMesher.h"
+#include "Engine.h"
 
 World::World(const unsigned long long& width, const unsigned long long& height, const unsigned long long& breadth, TextureDictionary* dict, BlockData* bd)
 	: m_wW(width),
@@ -106,14 +107,10 @@ void World::RenderWorld()
 	}
 	
 	// Render world...
+	Engine::Instance().GetGraphics().GetRenderProgram()->Use();
 	glBindTexture(GL_TEXTURE_2D, m_texDict->GetTexture().glTex);
 	glBindVertexArray(m_wMeshes[0]->GetVAOs()[0].first);
 	glDrawArrays(GL_TRIANGLES, 0, m_wMeshes[0]->tCount);
-	for (size_t i = 0; i < num_aabbs; i++)
-	{
-		//if (AABBGrid[i].alive)
-			//AABBGrid[i].Draw();
-	}
 }
 unsigned long long World::GetWidth()
 {

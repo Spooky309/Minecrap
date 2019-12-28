@@ -1,4 +1,5 @@
 #include "Input.h"
+#include "Engine.h"
 #include <cstring>
 
 void Input::Init(GLFWwindow* wind)
@@ -93,15 +94,15 @@ void Input::IntMouseCallback(GLFWwindow* window, int button, int action, int mod
 
 void Input::KeyCallback(GLFWwindow* wind, int key, int scancode, int action, int mods)
 {
-	Instance().IntKeyCallback(wind, key, scancode, action, mods);
+	Engine::Instance().GetInput().IntKeyCallback(wind, key, scancode, action, mods);
 }
 
 void Input::CurPosCallback(GLFWwindow* window, double xpos, double ypos)
 {
-	Instance().IntCurPosCallback(window, xpos, ypos);
+	Engine::Instance().GetInput().IntCurPosCallback(window, xpos, ypos);
 }
 
 void Input::MouseCallback(GLFWwindow* window, int button, int action, int mods)
 {
-	Instance().IntMouseCallback(window, button, action, mods);
+	Engine::Instance().GetInput().IntMouseCallback(window, button, action, mods);
 }
