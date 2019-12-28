@@ -2,12 +2,12 @@
 #include <glm/glm.hpp>
 #include "World.h"
 #include "BlockData.h"
-typedef enum PlayerMode
+typedef enum PMODE
 {
 	NONE = 0,
 	MAIN = 1,
 	GOD  = 2
-};
+} PlayerMode;
 class Player
 {
 public:

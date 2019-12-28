@@ -18,6 +18,7 @@ Player::Player(World* world, BlockData* bd, const glm::vec3& initPos, const Play
 	pFwd.z = sin(glm::radians(pEuler.x)) * cos(glm::radians(pEuler.y));
 	pFwd = glm::normalize(pFwd);
 	pRight = glm::normalize(glm::cross(pFwd, pUp));
+	lookAABB = nullptr;
 }
 
 glm::mat4 Player::GetViewMatrix()
