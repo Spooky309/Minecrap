@@ -14,31 +14,39 @@ void Renderer3D::Init()
     rendProg = ShaderManager::Instance().LoadShaderProgram("block");
     rendProg->SetProjectionMatrix(glm::perspective(glm::radians(m_fov), 1024.0f/768.0f, m_nplane, m_fplane));
 }
-
+void Renderer3D::SetDefaultViewMatrix(const glm::mat4& nmat)
+{
+    currentVmat = nmat;
+}
 void Renderer3D::Render()
 {
     glm::mat4 useMat = currentVmat;
     bool newMat = false;
-    if (useMat != Engine::Instance().GetPlayer().GetViewMatrix())
+    if (useMat != lastVmat)
     {
-        useMat = Engine::Instance().GetPlayer().GetViewMatrix();
-        currentVmat = useMat;
+        useMat = currentVmat;
         rendProg->SetViewMatrix(useMat);
+        lastVmat = useMat;
         newMat = true;
     }
-    for (Renderer3D::RenderArgs r : queuedRenders)
+    ShaderProgram* curProg;
+    ShaderProgram* lastProg;
+    for (Renderer3D::RenderArgs& r : queuedRenders)
     {
-        ShaderProgram* curProg = rendProg;
+        curProg = rendProg;
         if (r.prog)
         {
             curProg = r.prog;
         }
-        curProg->Use();
-        if (r.prog && r.vmat != glm::mat4(0))
+        if (curProg != lastProg)
+        {
+            curProg->Use();
+        }
+        if (r.vmat != glm::mat4(0))
         {
             curProg->SetViewMatrix(r.vmat);
         }
-        else if (r.prog && newMat)
+        else if (curProg != lastProg)
         {
             curProg->SetViewMatrix(useMat);
         }
@@ -50,10 +58,34 @@ void Renderer3D::Render()
         {
             glBindTexture(GL_TEXTURE_2D, Engine::Instance().GetTextureDictionary().GetTexture().glTex);
         }
+        glPolygonMode(GL_FRONT_AND_BACK, r.polymode);
+        if (r.blend)
+        {
+            glEnable(GL_BLEND);
+            glBlendFunc(r.blendfunc_sfactor, r.blendfunc_dfactor);
+        }
+        else
+        {
+            glDisable(GL_BLEND);
+        }
+        if (r.backfacecull)
+        {
+            glEnable(GL_CULL_FACE);
+        }
+        else
+        {
+            glDisable(GL_CULL_FACE);
+        }
+        if (r.mmat != glm::mat4(0))
+        {
+            curProg->SetModelMatrix(r.mmat);
+        }
         for (auto& it : r.mesh->GetVAOs())
         {
 	        glBindVertexArray(it.first);
 	        glDrawArrays(GL_TRIANGLES, 0, r.mesh->tCount);
         }
+        lastProg = curProg;
     }
+    queuedRenders.clear();
 }

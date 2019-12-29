@@ -2,6 +2,7 @@
 #include "Ray.h"
 #include <vector>
 #include "ShaderManager.h"
+#include "RenderMesh.h"
 constexpr GLfloat BoxVerts[108] = {
 	-0.5f, -0.5f, -0.5f,
 	 0.5f, -0.5f, -0.5f,
@@ -102,10 +103,12 @@ public:
 	glm::vec3 halfSize;
 	glm::vec3 min;
 	glm::vec3 max;
+	
 	bool alive = false;
 	float dist;
 	int ws_x, ws_y, ws_z; // these are used to "link" into world data to decide which block this aabb belongs to
 	static GLuint boxVBO;
 	static GLuint boxVAO;
 	static ShaderProgram* rendProg;
+	static RenderMesh* mesh;
 };

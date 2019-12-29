@@ -199,6 +199,7 @@ void Player::Update(const float& dTime)
 			std::cout << "Selected " << blockData->GetBlockByID(selectedBlock)->internalName << "\n";
 		}
 	}
+	Engine::Instance().GetGraphics().Get3DRenderer()->SetDefaultViewMatrix(GetViewMatrix());
 }
 
 AABB* Player::GetLookAABB()

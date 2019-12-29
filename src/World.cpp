@@ -105,7 +105,9 @@ void World::RenderWorld()
 		curMesher->MeshWorld(this, &m_wMeshes);
 		remeshRequired = false;
 	}
-	Engine::Instance().GetGraphics().Get3DRenderer()->QueueRender(Renderer3D::RenderArgs(*(m_wMeshes[0])));
+	Renderer3D::RenderArgs args;
+	args.mesh = (m_wMeshes[0]);
+	Engine::Instance().GetGraphics().Get3DRenderer()->QueueRender(args);
 }
 unsigned long long World::GetWidth()
 {

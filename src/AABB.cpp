@@ -8,9 +8,11 @@
 #include "Engine.h"
 #include "OpenGLW.h"
 #include <limits>
+#include "Renderer3D.h"
 GLuint AABB::boxVBO;
 GLuint AABB::boxVAO;
 ShaderProgram* AABB::rendProg;
+RenderMesh* AABB::mesh;
 AABB::AABB(
 	const float& io_x,
 	const float& io_y,
@@ -26,7 +28,7 @@ AABB::AABB(
 {
 	min = origin - (halfSize);
 	max = origin + (halfSize);
-	if (!boxVAO)
+	if (!mesh)
 	{
 		glGenVertexArrays(1, &boxVAO);
 		glBindVertexArray(boxVAO);
@@ -35,6 +37,9 @@ AABB::AABB(
 		glBufferData(GL_ARRAY_BUFFER, 108 * sizeof(GLfloat), BoxVerts, GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
 		glEnableVertexAttribArray(0);
+		mesh = new RenderMesh();
+		mesh->AddVAO(boxVAO, 0);
+		mesh->tCount = 36;
 	}
 	if (!rendProg)
 	{
@@ -46,23 +51,20 @@ AABB::AABB(
 
 void AABB::Draw()
 {
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable(GL_CULL_FACE);
-	glBindVertexArray(boxVAO);
-	rendProg->Use();
-	rendProg->SetViewMatrix(Engine::Instance().GetGraphics().GetRenderProgram()->GetViewMatrix());
 	glm::mat4 modelMat(1.0f);
 	modelMat = glm::translate(modelMat, this->origin);
 	modelMat = glm::scale(modelMat, glm::vec3(1.01f, 1.01f, 1.01f)); // so it wont clip
 	modelMat = glm::scale(modelMat, size);
-	glUniform1f(glGetUniformLocation(rendProg->GetProgID(), "alpha"), sin(glfwGetTime()*4.0f));
-	rendProg->SetModelMatrix(modelMat);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glDisable(GL_BLEND);
-	glEnable(GL_CULL_FACE);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	Renderer3D::RenderArgs args;
+	args.polymode = GL_LINE;
+	args.blend = true;
+	args.blendfunc_sfactor = GL_SRC_ALPHA;
+	args.blendfunc_dfactor = GL_ONE_MINUS_SRC_ALPHA;
+	args.backfacecull = false;
+	args.prog = rendProg;
+	args.mmat = modelMat;
+	args.mesh = mesh;
+	Engine::Instance().GetGraphics().Get3DRenderer()->QueueRender(args);
 }
 
 

@@ -16,16 +16,30 @@ public:
         ShaderProgram* prog;
         texture* tex;
         glm::mat4 vmat;
-        RenderArgs(RenderMesh& m, ShaderProgram* p = nullptr, texture* t = nullptr, const glm::mat4& v = glm::mat4(0))
+        glm::mat4 mmat;
+        GLuint polymode;
+        GLuint blendfunc_sfactor;
+        GLuint blendfunc_dfactor;
+        bool blend;
+        bool backfacecull;
+        RenderArgs()
         {
-            mesh = &m;
-            prog = p;
-            vmat = v;
-            tex = t;
+            mesh = nullptr;
+            prog = nullptr;
+            tex = nullptr;
+            vmat = glm::mat4(0);
+            mmat = glm::mat4(0);
+            polymode = GL_FILL;
+            blendfunc_sfactor = 0;
+            blendfunc_dfactor = 0;
+            blend = false;
+            backfacecull = true;
         }
     };
     friend class Graphics;
     void QueueRender(const RenderArgs& args);
+    void SetDefaultViewMatrix(const glm::mat4& nmat);
+    inline glm::mat4 GetDefaultViewMatrix() {return currentVmat;}
 private:
     void Init();
     void Render();
@@ -33,6 +47,7 @@ private:
     float m_nplane;
     float m_fplane;
     glm::mat4 currentVmat;
+    glm::mat4 lastVmat;
     ShaderProgram* rendProg;
     std::vector<RenderArgs> queuedRenders;
 };
