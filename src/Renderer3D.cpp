@@ -88,4 +88,7 @@ void Renderer3D::Render()
         lastProg = curProg;
     }
     queuedRenders.clear();
+    // make sure defaults are restored at the end
+    glEnable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
 }

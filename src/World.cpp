@@ -18,6 +18,20 @@ World::World(const unsigned long long& width, const unsigned long long& height, 
 	{
 		m_wData[i] = 0;
 	}
+	//for (size_t x = 0; x < m_wW; x++)
+	//{
+	//	for (size_t y = 0; y < m_wH; y++)
+	//	{
+	//		for (size_t z = 0; z < m_wB; z++)
+	//		{
+	//			if (z%2 && x%2 && x == y)
+	//			{
+	//				SetBlockAt(x,y,z,1);
+	//			}
+	//		}
+	//	}
+	//}
+	//return;
 	for (size_t x = 0; x < m_wW; x++)
 	{
 		for (size_t y = 0; y < m_wH; y++)
