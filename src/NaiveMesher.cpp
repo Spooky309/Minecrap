@@ -13,13 +13,13 @@ NaiveMesher::NaiveMesher(TextureDictionary* dict, BlockData* bData)
 	m_dict = dict;
 	m_bData = bData;
 }
-void NaiveMesher::MeshWorld(World* world, std::vector<WorldRenderMesh*>* meshes)
+void NaiveMesher::MeshWorld(World* world, std::vector<RenderMesh*>* meshes)
 {
 	double timeStart = glfwGetTime();
 	meshes->clear();
 	GLfloat* meshDatas = new GLfloat[((60 * 6)*(world->GetWidth() * world->GetHeight() * world->GetBreadth()))/2];
 	size_t meshDatai = 0;
-	WorldRenderMesh* rmesh = new WorldRenderMesh();
+	RenderMesh* rmesh = new RenderMesh();
 	rmesh->tCount = 0;
 	
 	for (size_t x = 0; x < world->GetWidth(); x++) 

@@ -16,23 +16,13 @@ void Graphics::Init()
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glEnable(GL_DEPTH_TEST);
-    rendProg = ShaderManager::Instance().LoadShaderProgram("block");
-    m_fov = 50.0f;
-    m_nplane = 0.1f;
-    m_fplane = 1000.0f;
-    rendProg->SetProjectionMatrix(glm::perspective(glm::radians(m_fov), 1024.0f / 768.0f, m_nplane, m_fplane));
+    rend3D = new Renderer3D();
+    rend3D->Init();
 }
 
 void Graphics::Render()
 {
-    rendProg->SetViewMatrix(Engine::Instance().GetPlayer().GetViewMatrix());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    Engine::Instance().GetWorld().RenderWorld();
-    AABB* lookAABB = Engine::Instance().GetPlayer().GetLookAABB();
-    if (lookAABB && lookAABB->alive)
-    {
-        lookAABB->rendProg->SetViewMatrix(Engine::Instance().GetPlayer().GetViewMatrix());
-        lookAABB->Draw();
-    }
+    rend3D->Render();
     glfwSwapBuffers(wind);
 }

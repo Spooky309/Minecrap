@@ -25,6 +25,10 @@ bool Engine::Tick()
 	{
 		glfwSetWindowShouldClose(m_graphics->GetWindow(), true);
 	}
+
+    m_world->RenderWorld();
+    
+
     m_graphics->Render();
     m_world->UpdateWorld();
     m_player->Update(dTime);

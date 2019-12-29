@@ -1,7 +1,7 @@
 #include "World.h"
 #include "NaiveMesher.h"
 #include "Engine.h"
-
+#include "Renderer3D.h"
 World::World(const unsigned long long& width, const unsigned long long& height, const unsigned long long& breadth, TextureDictionary* dict, BlockData* bd)
 	: m_wW(width),
 	m_wH(height),
@@ -105,12 +105,7 @@ void World::RenderWorld()
 		curMesher->MeshWorld(this, &m_wMeshes);
 		remeshRequired = false;
 	}
-	
-	// Render world...
-	Engine::Instance().GetGraphics().GetRenderProgram()->Use();
-	glBindTexture(GL_TEXTURE_2D, m_texDict->GetTexture().glTex);
-	glBindVertexArray(m_wMeshes[0]->GetVAOs()[0].first);
-	glDrawArrays(GL_TRIANGLES, 0, m_wMeshes[0]->tCount);
+	Engine::Instance().GetGraphics().Get3DRenderer()->QueueRender(Renderer3D::RenderArgs(*(m_wMeshes[0])));
 }
 unsigned long long World::GetWidth()
 {

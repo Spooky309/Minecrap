@@ -3,6 +3,7 @@
 #include "ShaderProgram.h"
 #include "OpenGLW.h"
 #include <glm/glm.hpp>
+#include "Renderer3D.h"
 class Graphics
 {
 public:
@@ -13,18 +14,18 @@ public:
     }
     inline ShaderProgram* GetRenderProgram()
     {
-        return rendProg;
+        return rend3D->rendProg;
     }
     void SetRenderViewMatrix();
     void SetFOV(GLfloat fov);
     void SetNearPlane(GLfloat nPlane);
     void SetFarPlane(GLfloat fPlane);
     void RestartGraphics();
+    inline Renderer3D* Get3DRenderer() { return rend3D; }
 private:
     void Init();
     void Render();
     GLFWwindow* wind;
-    ShaderProgram* rendProg;
-    GLfloat m_fov, m_nplane, m_fplane;
+    Renderer3D* rend3D;
 };
 #endif

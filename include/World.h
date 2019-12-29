@@ -30,7 +30,7 @@ private:
 	const unsigned long long m_wW, m_wH, m_wB;
 	const unsigned long long m_wSize;
 	unsigned short* m_wData;
-	std::vector<WorldRenderMesh*> m_wMeshes;
+	std::vector<RenderMesh*> m_wMeshes;
 	AABB AABBGrid[1000];
 	size_t num_aabbs = 0;
 	bool remeshRequired;

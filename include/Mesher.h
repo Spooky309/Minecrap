@@ -1,5 +1,5 @@
 #pragma once
-#include "WorldRenderMesh.h"
+#include "RenderMesh.h"
 #include <vector>
 class World; // fwd
 constexpr GLfloat lface[60] = {
@@ -53,5 +53,5 @@ constexpr GLfloat fface[60] = {
 class Mesher 
 {
 public:
-	virtual void MeshWorld(World* world, std::vector<WorldRenderMesh*>* meshes) = 0;
+	virtual void MeshWorld(World* world, std::vector<RenderMesh*>* meshes) = 0;
 };

@@ -1,5 +1,5 @@
-#include "WorldRenderMesh.h"
-WorldRenderMesh::~WorldRenderMesh()
+#include "RenderMesh.h"
+RenderMesh::~RenderMesh()
 {
 	GLuint a;
 	// delete all vaos
@@ -13,11 +13,11 @@ WorldRenderMesh::~WorldRenderMesh()
 		glDeleteBuffers(1, &m_vbos[i]);
 	}
 }
-void WorldRenderMesh::AddVAO(GLuint vao, GLuint texID)
+void RenderMesh::AddVAO(GLuint vao, GLuint texID)
 {
 	m_vaos.emplace_back(std::pair<GLuint, GLuint>(vao, texID));
 }
-std::vector<std::pair<GLuint, GLuint>> WorldRenderMesh::GetVAOs()
+std::vector<std::pair<GLuint, GLuint>> RenderMesh::GetVAOs()
 {
 	return m_vaos;
 }
