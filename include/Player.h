@@ -1,6 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 #include "World.h"
+#include "SpriteElement2D.h"
 #include "BlockData.h"
 typedef enum PMODE
 {
@@ -40,6 +41,7 @@ private:
 	World* m_curWorld; // the world i belong to
 	AABB* myAABB;
 	AABB* lookAABB;
+	SpriteElement2D* crosshair;
 	bool gravity = true;
 	unsigned short selectedBlock = 1;
 	BlockData* blockData;

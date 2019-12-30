@@ -12,6 +12,8 @@ void Renderer3D::Init()
     m_nplane = 0.1f;
     m_fplane = 1000.0f;
     rendProg = ShaderManager::Instance().LoadShaderProgram("block");
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     rendProg->SetProjectionMatrix(glm::perspective(glm::radians(m_fov), 1024.0f/768.0f, m_nplane, m_fplane));
 }
 void Renderer3D::SetDefaultViewMatrix(const glm::mat4& nmat)
