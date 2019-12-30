@@ -1,7 +1,7 @@
 #include "Player.h"
 #include "Input.h"
 #include "Engine.h"
-#include "Filesystem.h"
+#include "FileSystem.h"
 #include <iostream>
 #include <vector>
 #include <glm/gtx/compatibility.hpp>
@@ -20,7 +20,7 @@ Player::Player(World* world, BlockData* bd, const glm::vec3& initPos, const Play
 	pFwd = glm::normalize(pFwd);
 	pRight = glm::normalize(glm::cross(pFwd, pUp));
 	lookAABB = nullptr;
-	crosshair = new SpriteElement2D(glm::vec2(512.0f, 384.0f), glm::vec2(1.0f, 1.0f), new texture(Filesystem::Instance().GetAbsPathTo("crosshair.png")));
+	crosshair = new SpriteElement2D(glm::vec2(512.0f, 384.0f), glm::vec2(1.0f, 1.0f), TextureLoader::Instance().LoadTexture(Engine::Instance().GetFileSystem().GetAbsPathTo("crosshair.png")).get());
 }
 
 glm::mat4 Player::GetViewMatrix()

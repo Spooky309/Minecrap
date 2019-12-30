@@ -1,4 +1,4 @@
-#include "Filesystem.h"
+#include "Engine.h"
 #include "ShaderManager.h"
 
 ShaderProgram* ShaderManager::LoadShaderProgram(const std::string& name)
@@ -10,7 +10,7 @@ ShaderProgram* ShaderManager::LoadShaderProgram(const std::string& name)
 			return sp;
 		}
 	}
-	std::string fullPath = Filesystem::Instance().GetAbsPathTo(name);
+	std::string fullPath = Engine::Instance().GetFileSystem().GetAbsPathTo(name);
 	std::string vsPath = fullPath + ".vs";
 	std::string fsPath = fullPath + ".fs";
 	Shader* vs = new Shader(vsPath, GL_VERTEX_SHADER);

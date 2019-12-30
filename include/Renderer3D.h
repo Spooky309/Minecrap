@@ -14,7 +14,7 @@ public:
     {
         RenderMesh* mesh;
         ShaderProgram* prog;
-        texture* tex;
+        Texture* tex;
         glm::mat4 vmat;
         glm::mat4 mmat;
         GLuint polymode;

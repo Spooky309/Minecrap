@@ -14,7 +14,7 @@ class TextureDictionary
 {
 public:
 	TextureDictionary(const std::string& texName = "texture.png");
-	inline const texture& GetTexture()
+	inline const Texture& GetTexture()
 	{
 		return *m_tex;
 	}
@@ -27,7 +27,7 @@ public:
 		return UVs[0];
 	}
 private:
-	std::shared_ptr<texture> m_tex;
+	std::shared_ptr<Texture> m_tex;
 	size_t xUVs;
 	size_t yUVs;
 	size_t numUVs;

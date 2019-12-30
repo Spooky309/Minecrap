@@ -1,38 +1,44 @@
 #pragma once
 #include <memory>
 #include <vector>
+#include <iostream>
 #include <fstream>
 #include <png.h>
 #include "OpenGLW.h"
-class texture {
+class Texture {
 public:
-	texture(const std::string& path) {
+	Texture(const std::string& path) {
 		p = path;
 		png_byte header[8];
 		auto fp = std::unique_ptr<std::FILE, decltype(&std::fclose)>(std::fopen(path.c_str(), "rb"), &std::fclose);
 		if (fp == nullptr)
 		{
-			throw std::runtime_error("Requested PNG file either does not exist or is not accessible.");
+			std::cout << "Requested PNG file either does not exist or is not accessible.\n";
+			return;
 		}
 		fread(header, 1, 8, fp.get());
 
 		if (png_sig_cmp(header, 0, 8))
 		{
-			throw std::runtime_error("Requested texture at " + path + " is not a valid PNG file.\n");
+			std::cout << "Requested texture at " + path + " is not a valid PNG file.\n";
+			return;
 		}
 
 		png_struct* png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 		if (png_ptr == nullptr)
 		{
-			throw std::runtime_error("weird error: png_create_read_struct returned null");
+			std::cout << "weird error: png_create_read_struct returned null\n";
+			return;
 		}
 		png_info* info_ptr = png_create_info_struct(png_ptr);
 		if (info_ptr == nullptr) {
-			throw std::runtime_error("weird error: png_create_info_struct returned null");
+			std::cout << "weird error: png_create_info_struct returned null\n";
+			return;
 		}
 
 		if (setjmp(png_jmpbuf(png_ptr))) {
-			throw std::runtime_error("weird error of some kind in LibPNG.");
+			std::cout << "weird error of some kind in LibPNG.\n";
+			return;
 		}
 		png_init_io(png_ptr, fp.get());
 		png_set_sig_bytes(png_ptr, 8);
@@ -74,7 +80,8 @@ public:
 			format = GL_RGBA;
 			break;
 		default:
-			throw std::runtime_error("png image was an unknown format");
+			std::cout << "png image was an unknown format\n";
+			return;
 			break;
 		}
 
@@ -110,13 +117,13 @@ public:
 	std::string p;
 	std::vector<GLubyte> data;
 };
-class textureloader {
+class TextureLoader {
 public:
-	std::shared_ptr<texture> load_tex(const std::string& path);
-	std::vector<std::shared_ptr<texture>> loadedtexs;
+	std::shared_ptr<Texture> LoadTexture(const std::string& path);
+	std::vector<std::shared_ptr<Texture>> loadedtexs;
 
-	static textureloader& instance() {
-		static textureloader inst; //init once
+	static TextureLoader& Instance() {
+		static TextureLoader inst; //init once
 		return inst;
 	}
 };

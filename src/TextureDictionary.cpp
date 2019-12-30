@@ -1,8 +1,8 @@
 #include "TextureDictionary.h"
-#include "Filesystem.h"
+#include "Engine.h"
 TextureDictionary::TextureDictionary(const std::string& texName)
 {
-	m_tex = textureloader::instance().load_tex(Filesystem::Instance().GetAbsPathTo(texName));
+	m_tex = TextureLoader::Instance().LoadTexture(Engine::Instance().GetFileSystem().GetAbsPathTo(texName));
 	xUVs = m_tex->width / 16;
 	yUVs = m_tex->height / 16;
 	numUVs = xUVs * yUVs;

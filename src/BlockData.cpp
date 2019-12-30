@@ -1,12 +1,12 @@
 #include "BlockData.h"
 #include <iostream>
 #include <fstream>
-#include "Filesystem.h"
+#include "Engine.h"
 #define BDATAVERSION 1
 BlockData::BlockData(const std::string& blockDataCFG)
 {
 	FILE* blockFile;
-	fopen_s(&blockFile, Filesystem::Instance().GetAbsPathTo(blockDataCFG).c_str(), "rb");
+	fopen_s(&blockFile, Engine::Instance().GetFileSystem().GetAbsPathTo(blockDataCFG).c_str(), "rb");
 	if (!blockFile)
 	{
 		std::cout << "Block data is missing. You should probably abort now\n";

@@ -5,9 +5,9 @@
 class SpriteElement2D : public Element2D
 {
 public:
-    SpriteElement2D(const glm::vec2& pos, const glm::vec2& scale, texture* tex);
+    SpriteElement2D(const glm::vec2& pos, const glm::vec2& scale, Texture* tex);
 protected:
     void Render(ShaderProgram* shad);
-    texture* m_tex;
+    Texture* m_tex;
 };
 #endif

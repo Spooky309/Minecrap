@@ -4,7 +4,9 @@
 #include "Input.h"
 #include "World.h"
 #include "Player.h"
-
+#include "FileSystem.h"
+#include "EngineVitals.h"
+#include "FontManager.h"
 class Engine
 {
 public:
@@ -38,6 +40,10 @@ public:
     {
         return *m_input;
     }
+    inline FileSystem& GetFileSystem()
+    {
+        return *m_fs;
+    }
 private:
     bool Tick();
     Graphics* m_graphics;
@@ -46,6 +52,9 @@ private:
     BlockData* m_bdata;
     TextureDictionary* m_tdict;
     Input* m_input;
+    FileSystem* m_fs;
+    EngineVitals* m_vitals;
+    FontManager* m_fm;
     double m_oTime;
     Engine();
     ~Engine() = default;

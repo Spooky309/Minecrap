@@ -1,4 +1,4 @@
-#include "Filesystem.h"
+#include "FileSystem.h"
 #include <cstring>
 #ifdef WIN
 #include <Windows.h>
@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <linux/limits.h>
 #endif
-Filesystem::Filesystem()
+FileSystem::FileSystem()
 {
 	#ifdef WIN
 	LPSTR buf = (LPSTR)malloc(MAX_PATH);
@@ -22,7 +22,7 @@ Filesystem::Filesystem()
 	free(buf);
 }
 
-std::string Filesystem::GetAbsPathTo(const std::string& name)
+std::string FileSystem::GetAbsPathTo(const std::string& name)
 {
 	return exePath + name;
 }

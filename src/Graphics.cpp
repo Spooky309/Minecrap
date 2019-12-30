@@ -8,7 +8,7 @@ void Graphics::Init()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	wind = glfwCreateWindow(1024, 768, "Minecrap", nullptr, nullptr);
+	wind = glfwCreateWindow(1024, 768, "dont crash", nullptr, nullptr); // renamed to fall in line with my i3 rule for floating windows
 	glfwMakeContextCurrent(wind);
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	glfwSwapInterval(1);

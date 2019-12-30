@@ -8,6 +8,10 @@ class Renderer2D
 {
 public:
     void QueueRender(Element2D* element);
+    inline glm::mat4 GetProjectionMatrix()
+    {
+        return rendProg->GetProjectionMatrix();
+    }
     friend class Graphics;
 private:
     void Init();

@@ -1,6 +1,6 @@
 #include "SpriteElement2D.h"
 #include <glm/gtx/transform.hpp>
-SpriteElement2D::SpriteElement2D(const glm::vec2& pos, const glm::vec2& scale, texture* tex)
+SpriteElement2D::SpriteElement2D(const glm::vec2& pos, const glm::vec2& scale, Texture* tex)
 : Element2D(pos, scale)
 {
     m_tex = tex;
