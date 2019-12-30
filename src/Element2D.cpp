@@ -1,5 +1,9 @@
 #include "Element2D.h"
-
+Element2D::Element2D(const glm::vec2& pos, const glm::vec2& scale)
+{
+    m_pos = pos;
+    m_scale = scale;
+}
 void Element2D::SetPosition(const glm::vec2& newp)
 {
     m_pos = newp;
