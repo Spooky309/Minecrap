@@ -4,12 +4,12 @@
 #include <glm/gtx/transform.hpp>
 const GLfloat quad[30] = 
 {
-    1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  // top right
-    1.0f, 0.0f, 0.0f, 1.0f, 0.0f,  // bottom right
-    0.0f, 1.0f, 0.0f, 0.0f, 1.0f,  // top left
-    1.0f, 0.0f, 0.0f, 1.0f, 0.0f,  // bottom right
-    0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  // bottom left
-    0.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top left
+    0.5f, 0.5f, 0.0f, 1.0f, 1.0f,  // top right
+    0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  // bottom right
+    -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,  // top left
+    0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  // bottom right
+    -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  // bottom left
+    -0.5f, 0.5f, 0.0f, 0.0f, 1.0f   // top left
 };
 void Renderer2D::Init()
 {
@@ -42,6 +42,7 @@ void Renderer2D::QueueRender(Element2D* element)
 
 void Renderer2D::Render()
 {
+    glDisable(GL_CULL_FACE);
     for (auto it : rendQueue)
     {
         rendProg->Use();
@@ -57,8 +58,14 @@ void Renderer2D::Render()
         else
         {
             glBindVertexArray(rendVAO);
+            glBindBuffer(GL_ARRAY_BUFFER, rendVBO);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
+	        glEnableVertexAttribArray(0);
+	        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+	        glEnableVertexAttribArray(1);
         }
         it->Render(rendProg);
     }
     rendQueue.clear();
+    glEnable(GL_CULL_FACE);
 }

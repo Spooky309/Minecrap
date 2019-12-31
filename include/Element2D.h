@@ -18,7 +18,7 @@ public:
 protected:
     glm::vec2 m_pos;
     glm::vec2 m_scale;
-    bool m_useScratchVAO;
+    bool m_useScratchVAO = false;
     virtual void Render(ShaderProgram* shad) = 0; // 2d objects define their own rendering logic... it's the only way
 };
 #endif

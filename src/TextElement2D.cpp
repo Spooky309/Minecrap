@@ -45,9 +45,7 @@ void TextElement2D::Render(ShaderProgram*)
         };
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat)*30, verts);
         glBindTexture(GL_TEXTURE_2D, ch->textureID);
-        glDisable(GL_CULL_FACE);
         glDrawArrays(GL_TRIANGLES, 0, 6);
-        glEnable(GL_CULL_FACE);
         x += roundf((ch->advance.x >> 6) * m_scale.x);
     }
 }
