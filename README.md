@@ -34,6 +34,7 @@ Normally they call this a roadmap, but a hitlist sounds way cooler, right now my
 glfw3  
 libpng (by extension zlib)  
 openal (isn't actually used right now, but will be)  
+freetype2
 glm
 
 # Where can I build it?
