@@ -41,7 +41,6 @@ void TextElement2D::Render(ShaderProgram*)
             xpos,   ypos+h, 0.0f, 0.0f, 0.0f,
             xpos+w, ypos,   0.0f, 1.0f, 1.0f,
             xpos+w, ypos+h, 0.0f, 1.0f, 0.0f
-            
         };
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat)*30, verts);
         glBindTexture(GL_TEXTURE_2D, ch->textureID);

@@ -50,19 +50,10 @@ void Renderer2D::Render()
         {
             glBindVertexArray(scratchVAO);
             glBindBuffer(GL_ARRAY_BUFFER, scratchVBO);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
-	        glEnableVertexAttribArray(0);
-	        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
-	        glEnableVertexAttribArray(1);
         }
         else
         {
             glBindVertexArray(rendVAO);
-            glBindBuffer(GL_ARRAY_BUFFER, rendVBO);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
-	        glEnableVertexAttribArray(0);
-	        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
-	        glEnableVertexAttribArray(1);
         }
         it->Render(rendProg);
     }
