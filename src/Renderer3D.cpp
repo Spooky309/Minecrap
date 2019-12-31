@@ -91,6 +91,7 @@ void Renderer3D::Render()
     }
     queuedRenders.clear();
     // make sure defaults are restored at the end
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
 }

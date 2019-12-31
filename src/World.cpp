@@ -10,7 +10,8 @@ World::World(const unsigned long long& width, const unsigned long long& height, 
 	remeshRequired(true),
 	m_blockData(bd),
 	m_texDict(dict),
-	curMesher(new NaiveMesher(dict, bd))
+	curMesher(new NaiveMesher(dict, bd)),
+	AABBGrid(new AABB[m_wW*m_wH*m_wB])
 {
 	m_wData = new unsigned short[m_wSize];
 	// Worldgen
@@ -77,9 +78,47 @@ void World::QueueRemesh()
 {
 	remeshRequired = true;
 }
-
+void World::ClearAABBs()
+{
+	num_aabbs = 0;
+}
+void World::SingularAABBAdd(const int& x, const int& y, const int& z)
+{
+	for (int i = 0; i < num_aabbs; i++)
+	{
+		if (AABBGrid[i].ws_x == x && AABBGrid[i].ws_y == y && AABBGrid[i].ws_z == z && !AABBGrid[i].alive)
+		{
+			AABBGrid[i].alive = true;
+			return;
+		}
+	}
+	AABBGrid[num_aabbs] = AABB((float)x + 0.5f, (float)y + 0.5f, (float)z + 0.5f);
+	AABBGrid[num_aabbs].ws_x = x;
+	AABBGrid[num_aabbs].ws_y = y;
+	AABBGrid[num_aabbs].ws_z = z;
+	AABBGrid[num_aabbs].dist = FLT_MAX;
+	AABBGrid[num_aabbs].alive = true;
+	num_aabbs++;
+}
+void World::SingularAABBRemove(const int& x, const int& y, const int& z)
+{
+	int i;
+	for (i = 0; i < num_aabbs; i++)
+	{
+		if (AABBGrid[i].ws_x == x && AABBGrid[i].ws_y == y && AABBGrid[i].ws_z == z && AABBGrid[i].alive)
+		{
+			AABBGrid[i].alive = false;
+			num_aabbs--;
+			if (i < num_aabbs)
+			{
+				memcpy(AABBGrid + (sizeof(AABB) * i), AABBGrid + (sizeof(AABB) * i + 1), (sizeof(AABB)) * ((num_aabbs+1)-i));
+			}
+		}
+	}
+}
 void World::ForceAABBRegen(const int& gPposx, const int& gPposy, const int& gPposz)
 {
+	return;
 	num_aabbs = 0;
 	for (int x = gPposx - 5; x < gPposx + 5; x++)
 	{
@@ -122,6 +161,10 @@ void World::RenderWorld()
 	Renderer3D::RenderArgs args;
 	args.mesh = (m_wMeshes[0]);
 	Engine::Instance().GetGraphics().Get3DRenderer()->QueueRender(args);
+	for (int i = 0; i < num_aabbs; i++)
+	{
+		//AABBGrid[i].Draw();
+	}
 }
 unsigned long long World::GetWidth()
 {

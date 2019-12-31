@@ -15,6 +15,9 @@ public:
 	void SetMesher(Mesher* newMesher);
 	void UpdateWorld();
 	void ForceAABBRegen(const int& gPposx, const int& gPposy, const int& gPposz);
+	void ClearAABBs();
+	void SingularAABBAdd(const int& x, const int& y, const int& z);
+	void SingularAABBRemove(const int& x, const int& y, const int& z);
 	inline size_t GetNumAABBs() {
 		return num_aabbs;
 	}
@@ -31,7 +34,7 @@ private:
 	const unsigned long long m_wSize;
 	unsigned short* m_wData;
 	std::vector<RenderMesh*> m_wMeshes;
-	AABB AABBGrid[1000];
+	AABB* AABBGrid;
 	size_t num_aabbs = 0;
 	bool remeshRequired;
 	Mesher* curMesher;

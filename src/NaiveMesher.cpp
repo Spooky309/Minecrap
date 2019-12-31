@@ -21,7 +21,7 @@ void NaiveMesher::MeshWorld(World* world, std::vector<RenderMesh*>* meshes)
 	size_t meshDatai = 0;
 	RenderMesh* rmesh = new RenderMesh();
 	rmesh->tCount = 0;
-	
+	world->ClearAABBs();
 	for (size_t x = 0; x < world->GetWidth(); x++) 
 	{
 		for (size_t y = 0; y < world->GetHeight(); y++)
@@ -29,11 +29,12 @@ void NaiveMesher::MeshWorld(World* world, std::vector<RenderMesh*>* meshes)
 			for (size_t z = 0; z < world->GetBreadth(); z++)
 			{
 				unsigned short block = world->GetBlockAt(x, y, z);
+				
 				// no reason to process if there's no block here
 				if (!block) {
 					continue;
 				}
-				
+				bool side = false;
 				// check for adjacent block on each side, if none, add that side of this block to the mesh
 				// left
 				if (!world->GetBlockAt(x - 1, y, z))
@@ -76,6 +77,7 @@ void NaiveMesher::MeshWorld(World* world, std::vector<RenderMesh*>* meshes)
 					meshDatas[mdiStart + 28] = uvCoords.tr.x;
 					meshDatas[mdiStart + 29] = uvCoords.tr.y;
 					rmesh->tCount += 12;
+					side = true;
 				}
 				// right
 				if (!world->GetBlockAt(x + 1, y, z))
@@ -118,6 +120,7 @@ void NaiveMesher::MeshWorld(World* world, std::vector<RenderMesh*>* meshes)
 					meshDatas[mdiStart + 28] = uvCoords.br.x;
 					meshDatas[mdiStart + 29] = uvCoords.br.y;
 					rmesh->tCount += 12;
+					side = true;
 				}											 
 				// down
 				if (!world->GetBlockAt(x, y - 1, z))
@@ -160,6 +163,7 @@ void NaiveMesher::MeshWorld(World* world, std::vector<RenderMesh*>* meshes)
 					meshDatas[mdiStart + 28] = uvCoords.br.x;
 					meshDatas[mdiStart + 29] = uvCoords.br.y;
 					rmesh->tCount += 12;
+					side = true;
 				}
 				// up
 				if (!world->GetBlockAt(x, y + 1, z))
@@ -202,6 +206,7 @@ void NaiveMesher::MeshWorld(World* world, std::vector<RenderMesh*>* meshes)
 					meshDatas[mdiStart + 28] = uvCoords.tr.x;
 					meshDatas[mdiStart + 29] = uvCoords.tr.y;
 					rmesh->tCount += 12;
+					side = true;
 				}
 				// back
 				if (!world->GetBlockAt(x, y, z - 1))
@@ -244,6 +249,7 @@ void NaiveMesher::MeshWorld(World* world, std::vector<RenderMesh*>* meshes)
 					meshDatas[mdiStart + 28] = uvCoords.br.x;
 					meshDatas[mdiStart + 29] = uvCoords.br.y;
 					rmesh->tCount += 12;
+					side = true;
 				}
 				// front
 				if (!world->GetBlockAt(x, y, z + 1))
@@ -286,7 +292,9 @@ void NaiveMesher::MeshWorld(World* world, std::vector<RenderMesh*>* meshes)
 					meshDatas[mdiStart + 28] = uvCoords.tr.x;
 					meshDatas[mdiStart + 29] = uvCoords.tr.y;
 					rmesh->tCount += 12;
+					side = true;
 				}
+				if (side) world->SingularAABBAdd(x,y,z);
 			}
 		}
 	}

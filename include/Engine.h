@@ -44,6 +44,10 @@ public:
     {
         return *m_fs;
     }
+    inline FontManager& GetFontManager()
+    {
+        return *m_fm;
+    }
 private:
     bool Tick();
     Graphics* m_graphics;

@@ -2,10 +2,15 @@
 #include "Input.h"
 #include "Engine.h"
 #include "FileSystem.h"
+#include "TextElement2D.h"
 #include <iostream>
 #include <vector>
 #include <glm/gtx/compatibility.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+TextElement2D* posText;
+TextElement2D* velText;
+TextElement2D* delText;
+TextElement2D* grnText;
 Player::Player(World* world, BlockData* bd, const glm::vec3& initPos, const PlayerMode& pMode)
 	:pPos(initPos),
 	pEuler(glm::vec3(0.0f, 0.0f, 0.0f)),
@@ -21,6 +26,10 @@ Player::Player(World* world, BlockData* bd, const glm::vec3& initPos, const Play
 	pRight = glm::normalize(glm::cross(pFwd, pUp));
 	lookAABB = nullptr;
 	crosshair = new SpriteElement2D(glm::vec2(512.0f, 384.0f), glm::vec2(1.0f, 1.0f), TextureLoader::Instance().LoadTexture(Engine::Instance().GetFileSystem().GetAbsPathTo("crosshair.png")).get());
+	posText = new TextElement2D(glm::vec2(0.0f, 90.f), glm::vec2(1.0f, 1.0f), Engine::Instance().GetFontManager().LoadFont("dfont.ttf"), "null");
+	velText = new TextElement2D(glm::vec2(0.0f, 70.f), glm::vec2(1.0f, 1.0f), Engine::Instance().GetFontManager().LoadFont("dfont.ttf"), "null");
+	delText = new TextElement2D(glm::vec2(0.0f, 50.f), glm::vec2(1.0f, 1.0f), Engine::Instance().GetFontManager().LoadFont("dfont.ttf"), "null");
+	grnText = new TextElement2D(glm::vec2(0.0f, 30.f), glm::vec2(1.0f, 1.0f), Engine::Instance().GetFontManager().LoadFont("dfont.ttf"), "null");
 }
 
 glm::mat4 Player::GetViewMatrix()
@@ -32,16 +41,6 @@ glm::mat4 Player::GetViewMatrix()
 
 void Player::Update(const float& dTime)
 {
-	int pXp = (int)roundf(pPos.x);
-	int pYp = (int)roundf(pPos.y);
-	int pZp = (int)roundf(pPos.z);
-	if (pXp != xP || pYp != yP || pZp != zP)
-	{
-		xP = pXp;
-		yP = pYp;
-		zP = pZp;
-		m_curWorld->ForceAABBRegen(xP, yP, zP);
-	}
 	float mdx = Engine::Instance().GetInput().GetMouseDeltaX();
 	float mdy = Engine::Instance().GetInput().GetMouseDeltaY();
 	if (mdx != 0.0f || mdy != 0.0f)
@@ -112,14 +111,26 @@ void Player::Update(const float& dTime)
 	velocity.z = glm::lerp(velocity.z, 0.0f, drag);
 	myAABB->MoveAbs(pPos.x, pPos.y - 0.5f, pPos.z);
 	glm::vec3 delta = velocity * dTime;
+	int pXp = (int)roundf(pPos.x + delta.x);
+	int pYp = (int)roundf(pPos.y + delta.y);
+	int pZp = (int)roundf(pPos.z + delta.z);
+	if (pXp != xP || pYp != yP || pZp != zP)
+	{
+		xP = pXp;
+		yP = pYp;
+		zP = pZp;
+		//m_curWorld->ForceAABBRegen(xP, yP, zP);
+	}
 	Sweep* sw = myAABB->SweepIntoAABBs(m_curWorld->GetAABB(0), m_curWorld->GetNumAABBs(), delta);
 	//myAABB->Draw();
 	glm::vec3 oldvel = velocity;
 	int testi = 0;
 	while (sw->hit)
 	{
-		delta -= sw->hit->normal * glm::dot(delta, sw->hit->normal);
-		velocity -= sw->hit->normal * glm::dot(velocity, sw->hit->normal);
+		delta -= (sw->hit->normal * glm::dot(delta, sw->hit->normal));
+		velocity -= (sw->hit->normal * glm::dot(velocity, sw->hit->normal));
+		//delta *= sw->time;
+		//velocity *= (sw->time / dTime);
 		delete sw;
 		sw = myAABB->SweepIntoAABBs(m_curWorld->GetAABB(0), m_curWorld->GetNumAABBs(), delta);
 		testi++;
@@ -159,16 +170,19 @@ void Player::Update(const float& dTime)
 		{
 			if (m_curWorld->GetAABB(i) != aabbHit)
 			{
-				m_curWorld->GetAABB(i)->dist = tNear;
-				if (!aabbHit) {
-					aabbHit = m_curWorld->GetAABB(i);
-					normHit = tNormHit;
-					continue;
-				}
-				if (m_curWorld->GetAABB(i)->dist < aabbHit->dist)
+				if (tNear < 5.0f)
 				{
-					aabbHit = m_curWorld->GetAABB(i);
-					normHit = tNormHit;
+					m_curWorld->GetAABB(i)->dist = tNear;
+					if (!aabbHit) {
+						aabbHit = m_curWorld->GetAABB(i);
+						normHit = tNormHit;
+						continue;
+					}
+					if (m_curWorld->GetAABB(i)->dist < aabbHit->dist)
+					{
+						aabbHit = m_curWorld->GetAABB(i);
+						normHit = tNormHit;
+					}
 				}
 			}
 		}
@@ -179,7 +193,6 @@ void Player::Update(const float& dTime)
 		aabbHit->Draw();
 		if (Engine::Instance().GetInput().GetMouseButtonDown(0))
 		{
-			aabbHit->alive = false;
 			m_curWorld->SetBlockAt(aabbHit->ws_x, aabbHit->ws_y, aabbHit->ws_z, 0);
 		}
 		if (Engine::Instance().GetInput().GetMouseButtonDown(1))
@@ -192,7 +205,7 @@ void Player::Update(const float& dTime)
 					aabbHit->ws_y + (int)(roundf(normHit.y)),
 					aabbHit->ws_z + (int)(roundf(normHit.z)),
 					selectedBlock);
-				m_curWorld->ForceAABBRegen(xP, yP, zP);
+				//m_curWorld->ForceAABBRegen(xP, yP, zP);
 			}
 		}
 		if (Engine::Instance().GetInput().GetMouseButtonDown(2))
@@ -203,6 +216,21 @@ void Player::Update(const float& dTime)
 	}
 	Engine::Instance().GetGraphics().Get3DRenderer()->SetDefaultViewMatrix(GetViewMatrix());
 	Engine::Instance().GetGraphics().Get2DRenderer()->QueueRender(crosshair);
+	posText->SetText("pos: " + std::to_string(pPos.x) + "," + std::to_string(pPos.y) + "," + std::to_string(pPos.z));
+	Engine::Instance().GetGraphics().Get2DRenderer()->QueueRender(posText);
+	velText->SetText("vel: " + std::to_string(velocity.x) + "," + std::to_string(velocity.y) + "," + std::to_string(velocity.z));
+	Engine::Instance().GetGraphics().Get2DRenderer()->QueueRender(velText);
+	delText->SetText("del: " + std::to_string(delta.x) + "," + std::to_string(delta.y) + "," + std::to_string(delta.z));
+	Engine::Instance().GetGraphics().Get2DRenderer()->QueueRender(delText);
+	if (grounded)
+	{
+		grnText->SetText("GROUNDED");
+	}
+	else
+	{
+		grnText->SetText("");
+	}
+	Engine::Instance().GetGraphics().Get2DRenderer()->QueueRender(grnText);
 }
 
 AABB* Player::GetLookAABB()

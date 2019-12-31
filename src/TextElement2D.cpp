@@ -18,14 +18,14 @@ void TextElement2D::Render(ShaderProgram*)
     std::string::const_iterator c;
     float x = m_pos.x + ((sf->GetChar('O')->advance.x >> 6) * m_scale.x);
     float ix = x;
-    float y = m_pos.y - ((sf->GetChar('O')->size.y * 2.0f) * m_scale.y);
+    float y = m_pos.y - (18 * m_scale.y);
     myShad->Use();
     for (c = text.begin(); c < text.end(); c++)
     {
         Font::SubFont::SFChar* ch = sf->GetChar(*c);
         if (*c == '\n')
         {
-            y -= (sf->GetChar('O')->size.y * 2.0f) * m_scale.y;
+            y -= (18) * m_scale.y;
             x = ix;
             continue;
         }
