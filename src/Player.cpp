@@ -7,7 +7,9 @@
 #include <vector>
 #include <glm/gtx/compatibility.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+TextElement2D* conText;
 TextElement2D* posText;
+TextElement2D* fwdText;
 TextElement2D* velText;
 TextElement2D* delText;
 TextElement2D* grnText;
@@ -26,6 +28,8 @@ Player::Player(World* world, BlockData* bd, const glm::vec3& initPos, const Play
 	pRight = glm::normalize(glm::cross(pFwd, pUp));
 	lookAABB = nullptr;
 	crosshair = new SpriteElement2D(glm::vec2(512.0f, 384.0f), glm::vec2(1.0f, 1.0f), TextureLoader::Instance().LoadTexture(Engine::Instance().GetFileSystem().GetAbsPathTo("crosshair.png")).get());
+	conText = new TextElement2D(glm::vec2(0.0f, 130.0f), glm::vec2(1.0f, 1.0f), Engine::Instance().GetFontManager().LoadFont("dfont.ttf"), "null");
+	fwdText = new TextElement2D(glm::vec2(0.0f, 110.0f), glm::vec2(1.0f, 1.0f), Engine::Instance().GetFontManager().LoadFont("dfont.ttf"),"null");
 	posText = new TextElement2D(glm::vec2(0.0f, 90.f), glm::vec2(1.0f, 1.0f), Engine::Instance().GetFontManager().LoadFont("dfont.ttf"), "null");
 	velText = new TextElement2D(glm::vec2(0.0f, 70.f), glm::vec2(1.0f, 1.0f), Engine::Instance().GetFontManager().LoadFont("dfont.ttf"), "null");
 	delText = new TextElement2D(glm::vec2(0.0f, 50.f), glm::vec2(1.0f, 1.0f), Engine::Instance().GetFontManager().LoadFont("dfont.ttf"), "null");
@@ -125,40 +129,29 @@ void Player::Update(const float& dTime)
 	//myAABB->Draw();
 	glm::vec3 oldvel = velocity;
 	int testi = 0;
+	grounded = false;
 	while (sw->hit)
 	{
-		delta -= (sw->hit->normal * glm::dot(delta, sw->hit->normal));
-		velocity -= (sw->hit->normal * glm::dot(velocity, sw->hit->normal));
-		//delta *= sw->time;
-		//velocity *= (sw->time / dTime);
+		if (sw->hit->normal.y == 1.0f)
+		{
+			grounded = true;
+		}
+		glm::vec3 dPerpCom = sw->hit->normal * glm::dot(delta, sw->hit->normal);
+		glm::vec3 dParrCom = delta - dPerpCom;
+		// we multiply epsilon by some amount to push out a small amount to avoid falling into seams
+		// and causing unwanted collisions
+		delta = dParrCom + (dPerpCom * (sw->time - std::numeric_limits<float>::epsilon() * 1000.0f));
 		delete sw;
 		sw = myAABB->SweepIntoAABBs(m_curWorld->GetAABB(0), m_curWorld->GetNumAABBs(), delta);
 		testi++;
-		if (testi == 10)
+		if (testi == 4)
 		{
-			std::cout << "Attempted to test more than 10 AABBs, this is probably a bug\n";
 			break;
 		}
 	}
-	if (delta.y == 0.0f && oldvel.y < 0.0f)
-	{
-		//velocity.y = 0.0f;
-		grounded = true;
-	}
-	else
-	{
-		grounded = false;
-	}
-	if (delta.length() == 0.0f && oldvel.length() != 0.0f)
-	{
-		pPos = sw->pos;
-	}
-	else
-	{
-		pPos += delta;
-	}
 	delete sw;
-	
+	pPos += delta;
+	velocity = delta / dTime;
 	AABB* aabbHit = nullptr;
 	glm::vec3 normHit;
 	for (size_t i = 0; i < m_curWorld->GetNumAABBs(); i++)
@@ -222,6 +215,13 @@ void Player::Update(const float& dTime)
 	Engine::Instance().GetGraphics().Get2DRenderer()->QueueRender(velText);
 	delText->SetText("del: " + std::to_string(delta.x) + "," + std::to_string(delta.y) + "," + std::to_string(delta.z));
 	Engine::Instance().GetGraphics().Get2DRenderer()->QueueRender(delText);
+	if (testi != 4)
+		conText->SetText("con: " + std::to_string(testi));
+	else
+		conText->SetText("con: " + std::to_string(testi) + "!");
+	Engine::Instance().GetGraphics().Get2DRenderer()->QueueRender(conText);
+	fwdText->SetText("fwd: " + std::to_string(pFwd.x) + "," + std::to_string(pFwd.y) + "," + std::to_string(pFwd.z));
+	Engine::Instance().GetGraphics().Get2DRenderer()->QueueRender(fwdText);
 	if (grounded)
 	{
 		grnText->SetText("GROUNDED");

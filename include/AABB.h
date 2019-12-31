@@ -3,6 +3,7 @@
 #include <vector>
 #include "ShaderManager.h"
 #include "RenderMesh.h"
+#define ALMOSTEQ(a,b) fabs(a-b) < std::numeric_limits<float>::epsilon()
 constexpr GLfloat BoxVerts[108] = {
 	-0.5f, -0.5f, -0.5f,
 	 0.5f, -0.5f, -0.5f,

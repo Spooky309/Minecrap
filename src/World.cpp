@@ -10,10 +10,10 @@ World::World(const unsigned long long& width, const unsigned long long& height, 
 	remeshRequired(true),
 	m_blockData(bd),
 	m_texDict(dict),
-	curMesher(new NaiveMesher(dict, bd)),
-	AABBGrid(new AABB[m_wW*m_wH*m_wB])
+	curMesher(new NaiveMesher(dict, bd))
 {
 	m_wData = new unsigned short[m_wSize];
+	AABBGrid = new AABB[m_wSize];
 	// Worldgen
 	for (size_t i = 0; i < m_wSize; i++) 
 	{
@@ -111,8 +111,9 @@ void World::SingularAABBRemove(const int& x, const int& y, const int& z)
 			num_aabbs--;
 			if (i < num_aabbs)
 			{
-				memcpy(AABBGrid + (sizeof(AABB) * i), AABBGrid + (sizeof(AABB) * i + 1), (sizeof(AABB)) * ((num_aabbs+1)-i));
+				memcpy(AABBGrid + (sizeof(AABB) * i), AABBGrid + (sizeof(AABB) * (i + 1)), (sizeof(AABB)) * ((num_aabbs)-(i)));
 			}
+			return;
 		}
 	}
 }
@@ -145,7 +146,7 @@ void World::UpdateWorld()
 {
 
 }
-
+bool firstMesh = true;
 void World::RenderWorld()
 {
 	if (remeshRequired) 
@@ -155,7 +156,8 @@ void World::RenderWorld()
 		{
 			delete m_wMeshes[i];
 		}
-		curMesher->MeshWorld(this, &m_wMeshes);
+		curMesher->MeshWorld(this, &m_wMeshes, firstMesh);
+		firstMesh = false;
 		remeshRequired = false;
 	}
 	Renderer3D::RenderArgs args;

@@ -53,5 +53,5 @@ constexpr GLfloat fface[60] = {
 class Mesher 
 {
 public:
-	virtual void MeshWorld(World* world, std::vector<RenderMesh*>* meshes) = 0;
+	virtual void MeshWorld(World* world, std::vector<RenderMesh*>* meshes, const bool& first) = 0;
 };

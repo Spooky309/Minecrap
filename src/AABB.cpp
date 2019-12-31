@@ -195,7 +195,7 @@ Hit* AABB::VsSegment(glm::vec3 pos, glm::vec3 delta, float paddingX, float paddi
 Sweep* AABB::SweepVsAABB(const AABB& other, const glm::vec3 delta)
 {
 	Sweep* sweep = new Sweep();
-	if (delta.x == 0.0f && delta.y == 0.0f && delta.z == 0.0f)
+	if (ALMOSTEQ(delta.x, 0.0f) && ALMOSTEQ(delta.y,0.0f) && ALMOSTEQ(delta.z,0.0f))
 	{
 		sweep->pos.x = other.origin.x;
 		sweep->pos.y = other.origin.y;

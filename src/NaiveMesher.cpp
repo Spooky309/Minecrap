@@ -13,7 +13,7 @@ NaiveMesher::NaiveMesher(TextureDictionary* dict, BlockData* bData)
 	m_dict = dict;
 	m_bData = bData;
 }
-void NaiveMesher::MeshWorld(World* world, std::vector<RenderMesh*>* meshes)
+void NaiveMesher::MeshWorld(World* world, std::vector<RenderMesh*>* meshes, const bool& first)
 {
 	double timeStart = glfwGetTime();
 	meshes->clear();
