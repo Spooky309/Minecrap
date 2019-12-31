@@ -20,5 +20,7 @@ private:
     ShaderProgram* rendProg;
     GLuint rendVBO;
     GLuint rendVAO;
+    GLuint scratchVBO;
+    GLuint scratchVAO;
 };
 #endif

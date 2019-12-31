@@ -8,6 +8,7 @@
 class TextElement2D : public Element2D
 {
 public:
+    inline void SetText(std::string newText){text = newText;}
     TextElement2D(const glm::vec2& pos, const glm::vec2& scale, Font* font, std::string initText);
 protected:
     void Render(ShaderProgram* shad);

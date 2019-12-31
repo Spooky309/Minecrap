@@ -17,7 +17,7 @@ public:
             GLuint textureID;
             glm::ivec2 size;
             glm::ivec2 bearing;
-            GLuint advance;
+            glm::ivec2 advance;
         };
         SubFont(FT_Face& face, unsigned int size);
         inline SFChar* GetChar(unsigned char c)

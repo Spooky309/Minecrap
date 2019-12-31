@@ -38,7 +38,7 @@ Font::SubFont::SubFont(FT_Face& face, unsigned int size)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         thisc.size = glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows);
         thisc.bearing = glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top);
-        thisc.advance = face->glyph->advance.x;
+        thisc.advance = glm::ivec2(face->glyph->advance.x, face->glyph->advance.y);
         Chars[c] = thisc;
     }
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
