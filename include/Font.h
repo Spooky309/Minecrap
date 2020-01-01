@@ -12,13 +12,19 @@ public:
     class SubFont
     {
     public:
+        struct SFUV
+        {
+            glm::vec2 tLeft;
+            glm::vec2 bRight;
+        };
         struct SFChar
         {
-            GLuint textureID;
+            SFUV coords;
             glm::ivec2 size;
             glm::ivec2 bearing;
             glm::ivec2 advance;
         };
+        GLuint textureID;
         SubFont(FT_Face& face, unsigned int size);
         inline SFChar* GetChar(unsigned char c)
         {

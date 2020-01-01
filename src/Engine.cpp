@@ -6,9 +6,7 @@
 #include <iostream>
 // PERFORMANCE IMPROVEMENTS TO MAKE:
 // 1. Broadphase on vs. AABB Tests
-// 2. UV'd text rendering (minimise texture swap and data/draw calls)
-// GENERAL IMPROVEMENTS TO MAKE
-// 1. Fixup collision response
+// 3. Not regenerating the entire AABB grid every world update...
 
 Engine::Engine() :
     m_graphics(new Graphics()),

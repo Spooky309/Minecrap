@@ -11,7 +11,7 @@ void Graphics::Init()
 	wind = glfwCreateWindow(1024, 768, "dont crash", nullptr, nullptr); // renamed to fall in line with my i3 rule for floating windows
 	glfwMakeContextCurrent(wind);
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-	glfwSwapInterval(1);
+	glfwSwapInterval(0);
 	glClearColor(0.2f, 0.0f, 0.4f, 1.0f);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);

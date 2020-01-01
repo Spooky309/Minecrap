@@ -140,7 +140,7 @@ void Player::Update(const float& dTime)
 		glm::vec3 dParrCom = delta - dPerpCom;
 		// we multiply epsilon by some amount to push out a small amount to avoid falling into seams
 		// and causing unwanted collisions
-		delta = dParrCom + (dPerpCom * (sw->time - std::numeric_limits<float>::epsilon() * 1000.0f));
+		delta = dParrCom + (dPerpCom * (sw->time - std::numeric_limits<float>::epsilon() * 256.0f));
 		delete sw;
 		sw = myAABB->SweepIntoAABBs(m_curWorld->GetAABB(0), m_curWorld->GetNumAABBs(), delta);
 		testi++;
