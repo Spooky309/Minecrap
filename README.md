@@ -25,8 +25,9 @@ ESC - [Finish It](https://f4.bcbits.com/img/a2856518997_16.jpg)
 
 Normally they call this a roadmap, but a hitlist sounds way cooler, right now my priorities are:
 
-* Text and UI rendering
+* Friendlier UI rendering
 * Block types that are not cubes, e.g. flowers
+* Block data editor/version converter
 * Some kind of optimization for the chunk mesher, right now it causes a tiny hitch as it regenerates the entire mesh at once for every change made (per frame, if multiple changes are made in one frame, only one update is performed), this could be optimized but I'm not too worried about it because it's beyond unnoticeable in an optimized Release build. **This could easily be removed by parallelizing the mesh generation, which would cut the time in half at least, however, I'd like to find a better solution**
 
 # What does it depend upon?
