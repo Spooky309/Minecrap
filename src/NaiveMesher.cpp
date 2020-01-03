@@ -1,6 +1,7 @@
 #include "NaiveMesher.h"
 #include <glm/glm.hpp>
 #include "World.h"
+#include "Engine.h"
 #include "OpenGLW.h"
 #include <iostream>
 // Naive mesher prevents unviewable faces from being added to the mesh
@@ -13,22 +14,22 @@ NaiveMesher::NaiveMesher(TextureDictionary* dict, BlockData* bData)
 	m_dict = dict;
 	m_bData = bData;
 }
+World* wworld;
 void NaiveMesher::MeshWorld(World* world, std::vector<RenderMesh*>* meshes, const bool& first)
 {
-	double timeStart = glfwGetTime();
-	meshes->clear();
-	GLfloat* meshDatas = new GLfloat[((60 * 6)*(world->GetWidth() * world->GetHeight() * world->GetBreadth()))/2];
-	size_t meshDatai = 0;
-	RenderMesh* rmesh = new RenderMesh();
-	rmesh->tCount = 0;
-	world->ClearAABBs();
-	for (size_t x = 0; x < world->GetWidth(); x++) 
+	mmeshes = meshes;
+	wworld = world;
+	meshDatas = new GLfloat[((60 * 6)*(wworld->GetWidth() * wworld->GetHeight() * wworld->GetBreadth()))/2];
+	meshDatai = 0;
+	tcount = 0;
+	//wworld->ClearAABBs();
+	for (size_t x = 0; x < wworld->GetWidth(); x++) 
 	{
-		for (size_t y = 0; y < world->GetHeight(); y++)
+		for (size_t y = 0; y < wworld->GetHeight(); y++)
 		{
-			for (size_t z = 0; z < world->GetBreadth(); z++)
+			for (size_t z = 0; z < wworld->GetBreadth(); z++)
 			{
-				unsigned short block = world->GetBlockAt(x, y, z);
+				unsigned short block = wworld->GetBlockAt(x, y, z);
 				
 				// no reason to process if there's no block here
 				if (!block) {
@@ -37,7 +38,7 @@ void NaiveMesher::MeshWorld(World* world, std::vector<RenderMesh*>* meshes, cons
 				bool side = false;
 				// check for adjacent block on each side, if none, add that side of this block to the mesh
 				// left
-				if (!world->GetBlockAt(x - 1, y, z))
+				if (!wworld->GetBlockAt(x - 1, y, z))
 				{
 					FaceUVCoord uvCoords = m_dict->GetTextureUV(m_bData->GetBlockByID(block)->lefUV);
 					std::size_t mdiStart = meshDatai;
@@ -76,11 +77,11 @@ void NaiveMesher::MeshWorld(World* world, std::vector<RenderMesh*>* meshes, cons
 					meshDatas[mdiStart + 24] = uvCoords.br.y;
 					meshDatas[mdiStart + 28] = uvCoords.tr.x;
 					meshDatas[mdiStart + 29] = uvCoords.tr.y;
-					rmesh->tCount += 12;
+					tcount += 12;
 					side = true;
 				}
 				// right
-				if (!world->GetBlockAt(x + 1, y, z))
+				if (!wworld->GetBlockAt(x + 1, y, z))
 				{
 					std::size_t mdiStart = meshDatai;
 					FaceUVCoord uvCoords = m_dict->GetTextureUV(m_bData->GetBlockByID(block)->rigUV);
@@ -119,11 +120,11 @@ void NaiveMesher::MeshWorld(World* world, std::vector<RenderMesh*>* meshes, cons
 					meshDatas[mdiStart + 24] = uvCoords.tr.y;
 					meshDatas[mdiStart + 28] = uvCoords.br.x;
 					meshDatas[mdiStart + 29] = uvCoords.br.y;
-					rmesh->tCount += 12;
+					tcount += 12;
 					side = true;
 				}											 
 				// down
-				if (!world->GetBlockAt(x, y - 1, z))
+				if (!wworld->GetBlockAt(x, y - 1, z))
 				{
 					std::size_t mdiStart = meshDatai;
 					FaceUVCoord uvCoords = m_dict->GetTextureUV(m_bData->GetBlockByID(block)->botUV);
@@ -162,11 +163,11 @@ void NaiveMesher::MeshWorld(World* world, std::vector<RenderMesh*>* meshes, cons
 					meshDatas[mdiStart + 24] = uvCoords.tr.y;
 					meshDatas[mdiStart + 28] = uvCoords.br.x;
 					meshDatas[mdiStart + 29] = uvCoords.br.y;
-					rmesh->tCount += 12;
+					tcount += 12;
 					side = true;
 				}
 				// up
-				if (!world->GetBlockAt(x, y + 1, z))
+				if (!wworld->GetBlockAt(x, y + 1, z))
 				{
 					std::size_t mdiStart = meshDatai;
 					FaceUVCoord uvCoords = m_dict->GetTextureUV(m_bData->GetBlockByID(block)->topUV);
@@ -205,11 +206,11 @@ void NaiveMesher::MeshWorld(World* world, std::vector<RenderMesh*>* meshes, cons
 					meshDatas[mdiStart + 24] = uvCoords.br.y;
 					meshDatas[mdiStart + 28] = uvCoords.tr.x;
 					meshDatas[mdiStart + 29] = uvCoords.tr.y;
-					rmesh->tCount += 12;
+					tcount += 12;
 					side = true;
 				}
 				// back
-				if (!world->GetBlockAt(x, y, z - 1))
+				if (!wworld->GetBlockAt(x, y, z - 1))
 				{
 					std::size_t mdiStart = meshDatai;
 					FaceUVCoord uvCoords = m_dict->GetTextureUV(m_bData->GetBlockByID(block)->bacUV);
@@ -248,11 +249,11 @@ void NaiveMesher::MeshWorld(World* world, std::vector<RenderMesh*>* meshes, cons
 					meshDatas[mdiStart + 24] = uvCoords.tr.y;
 					meshDatas[mdiStart + 28] = uvCoords.br.x;
 					meshDatas[mdiStart + 29] = uvCoords.br.y;
-					rmesh->tCount += 12;
+					tcount += 12;
 					side = true;
 				}
 				// front
-				if (!world->GetBlockAt(x, y, z + 1))
+				if (!wworld->GetBlockAt(x, y, z + 1))
 				{
 					std::size_t mdiStart = meshDatai;
 					FaceUVCoord uvCoords = m_dict->GetTextureUV(m_bData->GetBlockByID(block)->froUV);
@@ -291,16 +292,21 @@ void NaiveMesher::MeshWorld(World* world, std::vector<RenderMesh*>* meshes, cons
 					meshDatas[mdiStart + 24] = uvCoords.br.y;
 					meshDatas[mdiStart + 28] = uvCoords.tr.x;
 					meshDatas[mdiStart + 29] = uvCoords.tr.y;
-					rmesh->tCount += 12;
+					tcount += 12;
 					side = true;
 				}
-				if (side) world->SingularAABBAdd(x,y,z);
+				//if (side && first) wworld->SingularAABBAdd(x,y,z);
 			}
 		}
 	}
-	
+	for (size_t i = 0; i < mmeshes->size(); i++)
+	{
+		delete mmeshes->at(i);
+	}
+    mmeshes->clear();
 	GLuint vbo;
 	GLuint vao;
+	glfwMakeContextCurrent(Engine::Instance().GetGraphics().GetWindow());
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	glGenBuffers(1, &vbo);
@@ -311,10 +317,10 @@ void NaiveMesher::MeshWorld(World* world, std::vector<RenderMesh*>* meshes, cons
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
 	// add the vao we just made
+	RenderMesh* rmesh = new RenderMesh();
+	rmesh->tCount = tcount;
 	rmesh->AddVAO(vao, 0);
 	rmesh->m_vbos.push_back(vbo);
-	meshes->push_back(rmesh);
-	double dTime = glfwGetTime() - timeStart;
-	delete[] meshDatas;
-	std::cout << "Meshing finished in " << dTime << "s\n";
+	mmeshes->push_back(rmesh);
+    delete[] meshDatas;
 }

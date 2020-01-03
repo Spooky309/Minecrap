@@ -54,4 +54,9 @@ class Mesher
 {
 public:
 	virtual void MeshWorld(World* world, std::vector<RenderMesh*>* meshes, const bool& first) = 0;
+	void FinishMeshing();
+	GLuint tcount;
+	size_t meshDatai;
+	GLfloat* meshDatas;
+	std::vector<RenderMesh*>* mmeshes;
 };

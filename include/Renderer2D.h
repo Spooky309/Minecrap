@@ -16,7 +16,8 @@ public:
 private:
     void Init();
     void Render();
-    std::vector<Element2D*> rendQueue;
+    Element2D** rQ;
+    size_t rqLen;
     ShaderProgram* rendProg;
     GLuint rendVBO;
     GLuint rendVAO;

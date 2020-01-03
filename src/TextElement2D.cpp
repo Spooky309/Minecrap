@@ -8,19 +8,28 @@ TextElement2D::TextElement2D(const glm::vec2& pos, const glm::vec2& scale, Font*
     m_font = font;
     myShad = ShaderManager::Instance().LoadShaderProgram("text");
     myShad->SetProjectionMatrix(Engine::Instance().GetGraphics().Get2DRenderer()->GetProjectionMatrix());
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+    SetText(initText);
 }
 
-void TextElement2D::Render(ShaderProgram*)
+void TextElement2D::SetText(const std::string& newText)
 {
+    text = newText;
     if (text.length() == 0) return;
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
-    Font::SubFont* sf = m_font->GetSize(18);
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    Font::SubFont* sf = m_font->GetSize(textSize);
     std::string::const_iterator c;
     float x = m_pos.x + ((sf->GetChar('O')->advance.x >> 6) * m_scale.x);
     float ix = x;
     float y = m_pos.y - (18 * m_scale.y);
-    myShad->Use();
     GLfloat* verts = new GLfloat[text.length() * 30]; // 1 quad for each character
     size_t vertsi = 0;
     for (c = text.begin(); c < text.end(); c++)
@@ -75,7 +84,17 @@ void TextElement2D::Render(ShaderProgram*)
         x += roundf((ch->advance.x >> 6) * m_scale.x);
     }
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*(30*text.length()), verts, GL_DYNAMIC_DRAW);
-    glBindTexture(GL_TEXTURE_2D, sf->textureID);
-    glDrawArrays(GL_TRIANGLES, 0, 6*text.length());
     delete[] verts;
+}
+
+void TextElement2D::Render(ShaderProgram*)
+{
+    if (text.length() == 0) return;
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    Font::SubFont* sf = m_font->GetSize(textSize);
+    glBindTexture(GL_TEXTURE_2D, sf->textureID);
+    glBindVertexArray(vao);
+    myShad->Use();
+    glDrawArrays(GL_TRIANGLES, 0, 6*text.length());
 }

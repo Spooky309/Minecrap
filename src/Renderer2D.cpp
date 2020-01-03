@@ -33,20 +33,29 @@ void Renderer2D::Init()
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
+    rQ = (Element2D**)malloc(sizeof(void*) * 1024);
+    rqLen = 0;
 }
 
 void Renderer2D::QueueRender(Element2D* element)
 {
-    rendQueue.push_back(element);
+    //rendQueue.push_back(element);
+    if (rqLen == 1024)
+    {
+        std::cout << "2d rendqueue is full, ignoring queue request\n";
+        return;
+    }
+    rQ[rqLen] = element;
+    rqLen++;
 }
 
 void Renderer2D::Render()
 {
     glDisable(GL_CULL_FACE);
-    for (auto it : rendQueue)
+    for (size_t i = 0; i < rqLen; i++)
     {
         rendProg->Use();
-        if (it->m_useScratchVAO)
+        if (rQ[i]->m_useScratchVAO)
         {
             glBindVertexArray(scratchVAO);
             glBindBuffer(GL_ARRAY_BUFFER, scratchVBO);
@@ -55,8 +64,8 @@ void Renderer2D::Render()
         {
             glBindVertexArray(rendVAO);
         }
-        it->Render(rendProg);
+        rQ[i]->Render(rendProg);
     }
-    rendQueue.clear();
+    rqLen = 0;
     glEnable(GL_CULL_FACE);
 }

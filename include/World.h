@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <thread>
 #include "Mesher.h"
 #include "AABB.h"
 #include "TextureDictionary.h"
@@ -18,10 +19,12 @@ public:
 	void ClearAABBs();
 	void SingularAABBAdd(const int& x, const int& y, const int& z);
 	void SingularAABBRemove(const int& x, const int& y, const int& z);
-	inline size_t GetNumAABBs() {
+	inline size_t GetNumAABBs()
+	{
 		return num_aabbs;
 	}
-	inline AABB* GetAABB(const size_t& i) {
+	inline AABB* GetAABB(const size_t& i)
+	{
 		return &AABBGrid[i];
 	}
 	void RenderWorld();
@@ -40,5 +43,6 @@ private:
 	Mesher* curMesher;
 	BlockData* m_blockData;
 	TextureDictionary* m_texDict;
+	std::thread* mesherThread;
 	World(const World&) = delete; // no copying allowed >:(
 };

@@ -97,6 +97,7 @@ public:
 	Hit* VsSegment(glm::vec3 pos, glm::vec3 delta, float paddingX = 0.0f, float paddingY = 0.0f, float paddingZ = 0.0f);
 	Sweep* SweepVsAABB(const AABB& other, const glm::vec3 delta);
 	Sweep* SweepIntoAABBs(AABB* aabbGrid, const size_t numAABBs, const glm::vec3& delta);
+	Sweep* SweepIntoAABBs(std::vector<AABB*>* aabbGrid, glm::vec3& delta);
 	void Draw();
 	inline glm::vec3 GetNormalFromPoint(glm::vec3 point) const;
 	glm::vec3 origin;

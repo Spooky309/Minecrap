@@ -254,6 +254,32 @@ Sweep* AABB::SweepIntoAABBs(AABB* aabbGrid, const size_t numAABBs, const glm::ve
 	}
 	return nearest;
 }
+Sweep* AABB::SweepIntoAABBs(std::vector<AABB*>* aabbGrid, glm::vec3& delta)
+{
+	Sweep* nearest = new Sweep();
+	nearest->time = 1.0f;
+	nearest->pos = origin + delta;
+	if (fabs(delta.x) > 0.0f || fabs(delta.y) > 0.0f || fabs(delta.z) > 0.0f) {
+		for (auto i = aabbGrid->begin(); i < aabbGrid->end(); i++)
+		{
+			AABB* it = *i;
+			if (it->alive)
+			{
+				Sweep* sw = it->SweepVsAABB(*this, delta);
+				if (sw->time < nearest->time)
+				{
+					delete nearest;
+					nearest = sw;
+				}
+				else
+				{
+					delete sw;
+				}
+			}
+		}
+	}
+	return nearest;
+}
 
 bool AABB::VsRay(const Ray& ray, float* tNear, glm::vec3* normal)
 {

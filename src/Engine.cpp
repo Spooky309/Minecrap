@@ -6,7 +6,7 @@
 #include <iostream>
 // PERFORMANCE IMPROVEMENTS TO MAKE:
 // 1. Broadphase on vs. AABB Tests
-// 3. Not regenerating the entire AABB grid every world update...
+// 2. Keep a list of active AABBs to avoid needless testing against AABB::alive
 
 Engine::Engine() :
     m_graphics(new Graphics()),
@@ -22,8 +22,8 @@ void Engine::Go(const std::vector<std::string> argv)
     m_input->Init(m_graphics->GetWindow());
     m_fm = new FontManager();
     m_tdict = new TextureDictionary();
-    m_world = new World(40, 40, 40, m_tdict, m_bdata);
-    m_player = new Player(m_world, m_bdata, glm::vec3(10, 30, 10));
+    m_world = new World(16, 256, 16, m_tdict, m_bdata);
+    m_player = new Player(m_world, m_bdata, glm::vec3(10, 130, 10));
     text_test = new TextElement2D(glm::vec2(0.0f, 768.0f),glm::vec2(1.0f,1.0f),m_fm->LoadFont("dfont.ttf"),"0.0\n0.0");
     text_test->SetText("last second ft (min/max/avg) (ms): 0/0/0\naverage framerate (1s): 0fps");
     m_oTime = glfwGetTime();
@@ -46,8 +46,8 @@ bool Engine::Tick()
 	}
     m_graphics->Get2DRenderer()->QueueRender(text_test);
     m_world->RenderWorld();
-    m_graphics->Render();
     m_world->UpdateWorld();
+    m_graphics->Render();
     m_player->Update(dTime);
     m_input->Update(m_graphics->GetWindow());
     glfwPollEvents();

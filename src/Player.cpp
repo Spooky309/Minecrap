@@ -140,7 +140,7 @@ void Player::Update(const float& dTime)
 		glm::vec3 dParrCom = delta - dPerpCom;
 		// we multiply epsilon by some amount to push out a small amount to avoid falling into seams
 		// and causing unwanted collisions
-		delta = dParrCom + (dPerpCom * (sw->time - std::numeric_limits<float>::epsilon() * 256.0f));
+		delta = dParrCom + (dPerpCom * (sw->time - std::numeric_limits<float>::epsilon() * 512.0f));
 		delete sw;
 		sw = myAABB->SweepIntoAABBs(m_curWorld->GetAABB(0), m_curWorld->GetNumAABBs(), delta);
 		testi++;
@@ -159,7 +159,7 @@ void Player::Update(const float& dTime)
 		Ray ray(pPos, pFwd);
 		glm::vec3 tNormHit;
 		float tNear = 0.0f; // this tells us how far from us the intersection was, useful for picking
-		if (m_curWorld->GetAABB(i)->VsRay(ray, &tNear, &tNormHit) && m_curWorld->GetAABB(i)->alive)
+		if (m_curWorld->GetAABB(i)->alive && m_curWorld->GetAABB(i)->VsRay(ray, &tNear, &tNormHit))
 		{
 			if (m_curWorld->GetAABB(i) != aabbHit)
 			{

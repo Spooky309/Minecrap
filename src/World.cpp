@@ -14,6 +14,11 @@ World::World(const unsigned long long& width, const unsigned long long& height, 
 {
 	m_wData = new unsigned short[m_wSize];
 	AABBGrid = new AABB[m_wSize];
+	num_aabbs = m_wSize;
+	for (size_t i = 0; i < m_wSize; i++)
+	{
+		AABBGrid[i].alive = false;
+	}
 	// Worldgen
 	for (size_t i = 0; i < m_wSize; i++) 
 	{
@@ -52,6 +57,7 @@ World::World(const unsigned long long& width, const unsigned long long& height, 
 			}
 		}
 	}
+	UpdateWorld();
 }
 void World::SetMesher(Mesher* newMesher)
 {
@@ -63,7 +69,64 @@ void World::SetBlockAt(const unsigned long long& x, const unsigned long long& y,
 	{
 		return;
 	}
+	if (newb == GetBlockAt(x,y,z)) return;
 	m_wData[x + m_wW * (y + m_wH * z)] = newb;
+	if (newb)
+	{
+		SingularAABBAdd(x,y,z);
+		for (int xo = -1; xo <= 1; xo++)
+		{
+			for (int yo = -1; yo <= 1; yo++)
+			{
+				for (int zo = -1; zo <= 1; zo++)
+				{
+					if (xo+yo+zo == 0) continue;
+					int xpo = x+xo;
+					int ypo = y+yo;
+					int zpo = z+zo;
+					if (!GetAABB(xpo + m_wW * (ypo + m_wH * zpo))) continue;
+					bool obscured = true;
+					for (int xo2 = -1; xo2 <= 1; xo2++)
+					{
+						for (int yo2 = -1; yo2 <= 1; yo2++)
+						{
+							for (int zo2 = -1; zo2 <= 1; zo2++)
+							{
+								if (xo2+yo2+zo2 == 0) continue;
+								if (!GetBlockAt(xpo+xo2, ypo+yo2, zpo+zo2)) 
+								{
+									obscured = false;
+									goto lend;
+								}
+							}
+						}
+					}
+					lend:
+					if (obscured)
+					{
+						SingularAABBRemove(xpo,ypo,zpo);
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		SingularAABBRemove(x,y,z);
+		// add AABBs for all revealed blocks
+		for (int xo = -1; xo <= 1; xo++)
+		{
+			for (int yo = -1; yo <= 1; yo++)
+			{
+				for (int zo = -1; zo <= 1; zo++)
+				{
+					if (xo+yo+zo == 0) continue;
+					if (GetBlockAt(x+xo,y+yo,z+zo))
+						SingularAABBAdd(x+xo,y+yo,z+zo);
+				}
+			}
+		}
+	}
 	QueueRemesh();
 }
 unsigned short World::GetBlockAt(const unsigned long long& x, const unsigned long long& y, const unsigned long long& z)
@@ -84,38 +147,22 @@ void World::ClearAABBs()
 }
 void World::SingularAABBAdd(const int& x, const int& y, const int& z)
 {
-	for (int i = 0; i < num_aabbs; i++)
+	size_t i = x + m_wW * (y + m_wH * z);
+	if (!AABBGrid[i].alive)
 	{
-		if (AABBGrid[i].ws_x == x && AABBGrid[i].ws_y == y && AABBGrid[i].ws_z == z && !AABBGrid[i].alive)
-		{
-			AABBGrid[i].alive = true;
-			return;
-		}
+		AABBGrid[i] = AABB((float)x + 0.5f, (float)y + 0.5f, (float)z + 0.5f);
+		AABBGrid[i].ws_x = x;
+		AABBGrid[i].ws_y = y;
+		AABBGrid[i].ws_z = z;
+		AABBGrid[i].dist = FLT_MAX;
+		AABBGrid[i].alive = true;
 	}
-	AABBGrid[num_aabbs] = AABB((float)x + 0.5f, (float)y + 0.5f, (float)z + 0.5f);
-	AABBGrid[num_aabbs].ws_x = x;
-	AABBGrid[num_aabbs].ws_y = y;
-	AABBGrid[num_aabbs].ws_z = z;
-	AABBGrid[num_aabbs].dist = FLT_MAX;
-	AABBGrid[num_aabbs].alive = true;
-	num_aabbs++;
+
 }
 void World::SingularAABBRemove(const int& x, const int& y, const int& z)
 {
-	int i;
-	for (i = 0; i < num_aabbs; i++)
-	{
-		if (AABBGrid[i].ws_x == x && AABBGrid[i].ws_y == y && AABBGrid[i].ws_z == z && AABBGrid[i].alive)
-		{
-			AABBGrid[i].alive = false;
-			num_aabbs--;
-			if (i < num_aabbs)
-			{
-				memcpy(AABBGrid + (sizeof(AABB) * i), AABBGrid + (sizeof(AABB) * (i + 1)), (sizeof(AABB)) * ((num_aabbs)-(i)));
-			}
-			return;
-		}
-	}
+	size_t i = x + m_wW * (y + m_wH * z);
+	AABBGrid[i].alive = false;
 }
 void World::ForceAABBRegen(const int& gPposx, const int& gPposy, const int& gPposz)
 {
@@ -141,24 +188,32 @@ void World::ForceAABBRegen(const int& gPposx, const int& gPposy, const int& gPpo
 		}
 	}
 }
-
+bool remeshing = false;
+bool firstMesh = true;
 void World::UpdateWorld()
 {
-
-}
-bool firstMesh = true;
-void World::RenderWorld()
-{
-	if (remeshRequired) 
+	if (remeshRequired)
 	{
-		// remesh the world
-		for (size_t i = 0; i < m_wMeshes.size(); i++)
-		{
-			delete m_wMeshes[i];
-		}
-		curMesher->MeshWorld(this, &m_wMeshes, firstMesh);
+		//if (mesherThread) delete mesherThread;
+		mesherThread = new std::thread(&Mesher::MeshWorld, std::ref(curMesher), this, &m_wMeshes, firstMesh);	
 		firstMesh = false;
 		remeshRequired = false;
+		remeshing = true;
+	}
+}
+
+void World::RenderWorld()
+{
+	if (firstMesh) return;
+	if (remeshing)
+	{
+		double otime = glfwGetTime();
+		mesherThread->join();
+		delete mesherThread;
+		//curMesher->FinishMeshing();
+		double dtime = glfwGetTime() - otime;
+		std::cout << "Waited on mesher thread for " << dtime << "s\n";
+		remeshing = false;
 	}
 	Renderer3D::RenderArgs args;
 	args.mesh = (m_wMeshes[0]);
