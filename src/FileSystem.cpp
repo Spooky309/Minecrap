@@ -1,7 +1,7 @@
 #include "FileSystem.h"
 #include <cstring>
 #ifdef WIN
-#include <Windows.h>
+#include <windows.h>
 #else
 #include <unistd.h>
 #include <linux/limits.h>

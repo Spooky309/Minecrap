@@ -3,6 +3,7 @@
 #include <fstream>
 #include "Engine.h"
 #define BDATAVERSION 1
+#define fread_s(ptr, size, esize, cnt, str) fread(ptr,esize,cnt,str)==NULL
 BlockData::BlockData(const std::string& blockDataCFG)
 {
 	FILE* blockFile;

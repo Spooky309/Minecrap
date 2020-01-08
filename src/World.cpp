@@ -210,6 +210,7 @@ void World::RenderWorld()
 		double otime = glfwGetTime();
 		mesherThread->join();
 		delete mesherThread;
+		curMesher->FinishMeshing();
 		//curMesher->FinishMeshing();
 		double dtime = glfwGetTime() - otime;
 		std::cout << "Waited on mesher thread for " << dtime << "s\n";

@@ -26,6 +26,7 @@ Player::Player(World* world, BlockData* bd, const glm::vec3& initPos, const Play
 	pFwd.z = sin(glm::radians(pEuler.x)) * cos(glm::radians(pEuler.y));
 	pFwd = glm::normalize(pFwd);
 	pRight = glm::normalize(glm::cross(pFwd, pUp));
+  velocity = glm::vec3(0.0f, 0.0f, 0.0f);
 	lookAABB = nullptr;
 	crosshair = new SpriteElement2D(glm::vec2(512.0f, 384.0f), glm::vec2(1.0f, 1.0f), TextureLoader::Instance().LoadTexture(Engine::Instance().GetFileSystem().GetAbsPathTo("crosshair.png")).get());
 	conText = new TextElement2D(glm::vec2(0.0f, 130.0f), glm::vec2(1.0f, 1.0f), Engine::Instance().GetFontManager().LoadFont("dfont.ttf"), "null");
