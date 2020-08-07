@@ -50,3 +50,7 @@ Everyone who gave me the validation I needed to be motivated to continue with th
 My parents for being cool
 
 <sup><sup>ahoy spongebob, i have broken several copyright and trademark laws and am going to be sentenced to life in prison agagagagagagagag</sup></sup>
+
+# It's in the arctic
+
+Apparently this repository is in the Github Arctic Vault or something. Which is kinda neat. Shoutouts to my far-future family members.
